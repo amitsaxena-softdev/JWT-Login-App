@@ -1,3 +1,7 @@
 [
-  
+  {
+    "username": "user2",
+    "password": "$2b$10$OzaXCDT81h26CKpOrfSv3ufETlCmG21kMj/U8r1JhR3tT26iM2YLC",
+    "role": "admin"
+  }
 ]
