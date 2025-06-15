@@ -1,0 +1,32 @@
+GET http://localhost:3001/
+###
+GET http://localhost:3001/user
+###
+GET http://localhost:3001/user/getAllUsers
+###
+POST http://localhost:3001/user/signup
+Content-Type: application/json
+
+{
+  "username": "User1",
+  "password": "user1@123",
+  "role": "user"
+}
+###
+POST http://localhost:3001/user/login
+Content-Type: application/json
+
+{
+  "username": "User2",
+  "password": "user2@456",
+  "role": "admin"
+}
+###
+POST http://localhost:3001/user/deleteUser
+Content-Type: application/json
+
+{
+  "username": "User1",
+  "password": "user1@123",
+  "role": "user"
+}
