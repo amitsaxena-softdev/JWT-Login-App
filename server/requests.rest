@@ -1,16 +1,22 @@
 GET http://localhost:3001/
 ###
-GET http://localhost:3001/user
+GET http://localhost:3001/admin
 ###
-GET http://localhost:3001/user/getAllUsers
+GET http://localhost:3001/admin/getAllUsers
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIyIiwiaWF0IjoxNzUwMDg1NDMxLCJleHAiOjE3NTAwODkwMzF9.T_yKY6mV37QHUs0XO_HdVfLZFRod9scCQex6K-Cm8ME
 ###
 POST http://localhost:3001/user/signup
 Content-Type: application/json
 
 {
-  "username": "User1",
+  "username": "User3",
   "password": "user1@123",
-  "role": "user"
+  "role": "user",
+  "firstName": "User",
+  "lastName": "Three",
+  "email": "user.three@example.com",
+  "gender": "male"
 }
 ###
 POST http://localhost:3001/user/login
@@ -18,15 +24,13 @@ Content-Type: application/json
 
 {
   "username": "User2",
-  "password": "user2@456",
-  "role": "admin"
+  "password": "user1@123"
 }
 ###
-POST http://localhost:3001/user/deleteUser
+POST http://localhost:3001/user/deleteUserByAdmin
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIyIiwiaWF0IjoxNzUwMDg1NjgyLCJleHAiOjE3NTAwODkyODJ9.pyMpCk9CgtoijTp5GWXKl2_ItnnjGu-ZRRR3NVUcbdI
 
 {
-  "username": "User1",
-  "password": "user1@123",
-  "role": "user"
+  "username": "User1"
 }
