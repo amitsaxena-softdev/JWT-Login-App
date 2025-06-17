@@ -4,19 +4,19 @@ GET http://localhost:3001/admin
 ###
 GET http://localhost:3001/admin/getAllUsers
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIyIiwiaWF0IjoxNzUwMDg1NDMxLCJleHAiOjE3NTAwODkwMzF9.T_yKY6mV37QHUs0XO_HdVfLZFRod9scCQex6K-Cm8ME
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIxIiwiaWF0IjoxNzUwMTA3MzU1LCJleHAiOjE3NTAxMTA5NTV9.qF0bs8Y2IXtwxeUop79AYOP83zvRz6KaQD_WtwGtU4E
 ###
 POST http://localhost:3001/user/signup
 Content-Type: application/json
 
 {
-  "username": "User3",
+  "username": "User2",
   "password": "user1@123",
-  "role": "user",
+  "role": "admin",
   "firstName": "User",
-  "lastName": "Three",
-  "email": "user.three@example.com",
-  "gender": "male"
+  "lastName": "Two",
+  "email": "user.two@example.com",
+  "gender": "female"
 }
 ###
 POST http://localhost:3001/user/login
@@ -27,9 +27,17 @@ Content-Type: application/json
   "password": "user1@123"
 }
 ###
-POST http://localhost:3001/user/deleteUserByAdmin
+POST http://localhost:3001/user/deleteUser
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIyIiwiaWF0IjoxNzUwMDg1NjgyLCJleHAiOjE3NTAwODkyODJ9.pyMpCk9CgtoijTp5GWXKl2_ItnnjGu-ZRRR3NVUcbdI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIyIiwiaWF0IjoxNzUwMTA3NTA5LCJleHAiOjE3NTAxMTExMDl9.kKwn6cfmlgF1HMmcU5GNulMWEUh9N8bjJ2U_1H1vFEo
+
+{
+  "username": "User2"
+}
+###
+POST http://localhost:3001/admin/deleteUserByAdmin
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIxIiwiaWF0IjoxNzUwMTA2ODY5LCJleHAiOjE3NTAxMTA0Njl9.TWmvMgGhB-SC3dMVLg3wioZZPMYgfi1A2dB8Xie1fTg
 
 {
   "username": "User1"

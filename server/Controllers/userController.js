@@ -128,8 +128,13 @@ const deleteUser = async (req, res) => {
     if (!tokenUser) {
       throw new Error("User not found!");
     }
-    if (tokenUser.username != username) {
+    if (tokenUser.username != username.toLowerCase()) {
       throw new Error("You can only delete your own account!");
+    }
+    // If the user is the only admin, prevent deletion
+    const adminCount = await User.countDocuments({ role: "admin" });
+    if (tokenUser.role === "admin" && adminCount <= 1) {
+      throw new Error("Cannot delete the only admin user!");
     }
     // No need to check password, JWT token already verifies the user
     User.deleteOne({ username: username.toLowerCase() })
@@ -151,7 +156,7 @@ const deleteUser = async (req, res) => {
   } catch (ex) {
     return res.status(400).json({
       success: false,
-      message: "Invalid token or error deleting user",
+      message: "Error deleting user!",
       error: ex.message,
     });
   }

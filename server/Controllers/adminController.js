@@ -53,7 +53,7 @@ const deleteUserByAdmin = async (req, res) => {
       throw new Error("Username of to be deleted user is required!");
     }
 
-    if (tokenUser.username == username) {
+    if (tokenUser.username == username.toLowerCase()) {
       throw new Error("You cannot delete your own account as an admin!");
     }
 
