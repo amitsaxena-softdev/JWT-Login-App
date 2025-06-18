@@ -33,8 +33,8 @@ const Card = styled(MuiCard)(({ theme }) => ({
 }));
 
 export default function SignInCard() {
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
+  const [usernameError, setUsernameError] = React.useState(false);
+  const [usernameErrorrMessage, setUsernameErrorrMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
   const [open, setOpen] = React.useState(false);
@@ -49,29 +49,29 @@ export default function SignInCard() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (emailError || passwordError) {
+    if (usernameError || passwordError) {
       return;
     }
     const data = new FormData(event.currentTarget);
     console.log({
-      email: data.get("email"),
+      username: data.get("username"),
       password: data.get("password"),
     });
   };
 
   const validateInputs = () => {
-    const email = document.getElementById("email") as HTMLInputElement;
+    const username = document.getElementById("username") as HTMLInputElement;
     const password = document.getElementById("password") as HTMLInputElement;
 
     let isValid = true;
 
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true);
-      setEmailErrorMessage("Please enter a valid email address.");
+    if (!username.value || !/^[a-zA-Z0-9_]{3,20}$/.test(username.value)) {
+      setUsernameError(true);
+      setUsernameErrorrMessage("Username: 3–20 chars: letters, numbers, _ only.");
       isValid = false;
     } else {
-      setEmailError(false);
-      setEmailErrorMessage("");
+      setUsernameError(false);
+      setUsernameErrorrMessage("");
     }
 
     if (!password.value || password.value.length < 6) {
@@ -105,20 +105,20 @@ export default function SignInCard() {
         sx={{ display: "flex", flexDirection: "column", width: "100%", gap: 2 }}
       >
         <FormControl>
-          <FormLabel htmlFor="email">Email</FormLabel>
+          <FormLabel htmlFor="email">Username</FormLabel>
           <TextField
-            error={emailError}
-            helperText={emailErrorMessage}
-            id="email"
-            type="email"
-            name="email"
-            placeholder="your@email.com"
-            autoComplete="email"
+            error={usernameError}
+            helperText={usernameErrorrMessage}
+            id="username"
+            type="string"
+            name="username"
+            placeholder="user123"
+            autoComplete="string"
             autoFocus
             required
             fullWidth
             variant="outlined"
-            color={emailError ? "error" : "primary"}
+            color={usernameError ? "error" : "primary"}
           />
         </FormControl>
         <FormControl>
