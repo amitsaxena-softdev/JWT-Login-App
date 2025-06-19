@@ -1,7 +1,6 @@
-import * as React from "react";
+import React, { useState} from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import MuiCard from "@mui/material/Card";
 import Checkbox from "@mui/material/Checkbox";
 import Divider from "@mui/material/Divider";
 import FormLabel from "@mui/material/FormLabel";
@@ -10,34 +9,21 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Link from "@mui/material/Link";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { styled } from "@mui/material/styles";
 import ForgotPassword from "./ForgetPassword";
 import { GoogleIcon, FacebookIcon, SitemarkIcon } from "./CustomIcons";
-
-const Card = styled(MuiCard)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  alignSelf: "center",
-  width: "100%",
-  padding: theme.spacing(4),
-  gap: theme.spacing(2),
-  boxShadow:
-    "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
-  [theme.breakpoints.up("sm")]: {
-    width: "450px",
-  },
-  ...theme.applyStyles("dark", {
-    boxShadow:
-      "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
-  }),
-}));
+import { validateFields } from "../../utils/validateFormFields";
+import AuthCard from "../../shared-theme/customizations/AuthCard";
+import ErrorDialog from "../../utils/ErrorDialog";
 
 export default function SignInCard() {
-  const [usernameError, setUsernameError] = React.useState(false);
-  const [usernameErrorrMessage, setUsernameErrorrMessage] = React.useState("");
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-  const [open, setOpen] = React.useState(false);
+  const [usernameError, setUsernameError] = useState(false);
+  const [usernameErrorMessage, setUsernameErrorMessage] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -47,47 +33,61 @@ export default function SignInCard() {
     setOpen(false);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (usernameError || passwordError) {
+
+    // Validate inputs before proceeding
+    const formData = new FormData(event.currentTarget);
+    const fields = {
+      username: formData.get("username") as string,
+      password: formData.get("password") as string,
+    };
+
+    const { isValid, errors } = validateFields(fields);
+
+    // Reset error states
+    setUsernameError(errors.username?.error || false);
+    setUsernameErrorMessage(errors.username?.message || "");
+    setPasswordError(errors.password?.error || false);
+    setPasswordErrorMessage(errors.password?.message || "");
+
+    // If any field is invalid, do not proceed with submission
+    if (!isValid) {
       return;
     }
-    const data = new FormData(event.currentTarget);
-    console.log({
-      username: data.get("username"),
-      password: data.get("password"),
-    });
-  };
+    // Proceed with form submission, e.g., send data to the server
+    // For demonstration, we'll just log the fields
+    // console.log(fields); // Only for demonstration, remove in production
+    // Now making a POST request to the server
+    try {
+      const response = await fetch("http://localhost:3001/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fields),
+      });
 
-  const validateInputs = () => {
-    const username = document.getElementById("username") as HTMLInputElement;
-    const password = document.getElementById("password") as HTMLInputElement;
+      const result = await response.json();
 
-    let isValid = true;
+      if (!response.ok) {
+        throw new Error(result.message || "Login failed");
+      }
+      // Forward to dashboard on successful login
+      window.location.href = "/dashboard";
+      // Token z. B. in localStorage speichern
+      localStorage.setItem("token", result.token);
+      // Set success message and open snackbar
+      // setSuccessMsg("User logged in successfully!");
+      // setSuccessOpen(true);
 
-    if (!username.value || !/^[a-zA-Z0-9_]{3,20}$/.test(username.value)) {
-      setUsernameError(true);
-      setUsernameErrorrMessage("Username: 3–20 chars: letters, numbers, _ only.");
-      isValid = false;
-    } else {
-      setUsernameError(false);
-      setUsernameErrorrMessage("");
+    } catch (error: any) {
+      const msg = error.message || "Something went wrong.";
+      setErrorMessage(msg);
+      setErrorDialogOpen(true);
     }
-
-    if (!password.value || password.value.length < 6) {
-      setPasswordError(true);
-      setPasswordErrorMessage("Password must be at least 6 characters long.");
-      isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage("");
-    }
-
-    return isValid;
   };
 
   return (
-    <Card variant="outlined">
+    <AuthCard variant="outlined">
       <Box sx={{ display: { xs: "flex", md: "none" } }}>
         <SitemarkIcon />
       </Box>
@@ -108,7 +108,7 @@ export default function SignInCard() {
           <FormLabel htmlFor="email">Username</FormLabel>
           <TextField
             error={usernameError}
-            helperText={usernameErrorrMessage}
+            helperText={usernameErrorMessage}
             id="username"
             type="string"
             name="username"
@@ -154,12 +154,7 @@ export default function SignInCard() {
           label="Remember me"
         />
         <ForgotPassword open={open} handleClose={handleClose} />
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          onClick={validateInputs}
-        >
+        <Button type="submit" fullWidth variant="contained">
           Sign in
         </Button>
         <Typography sx={{ textAlign: "center" }}>
@@ -195,6 +190,11 @@ export default function SignInCard() {
           Sign in with Facebook
         </Button>
       </Box>
-    </Card>
+      <ErrorDialog
+        open={errorDialogOpen}
+        onClose={() => setErrorDialogOpen(false)}
+        message={errorMessage}
+      />
+    </AuthCard>
   );
 }

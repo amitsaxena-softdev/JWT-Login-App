@@ -3,8 +3,8 @@ const app = express();
 const cors = require("cors");
 const userRouter = require("./Routers/userRouter");
 const adminRouter = require("./Routers/adminRouter");
+const authRouter = require("./Routers/authRouter");
 const mongoose = require("mongoose");
-const { MongoClient, ServerApiVersion } = require("mongodb");
 
 require("dotenv").config({ path: "../.env" });
 
@@ -16,6 +16,7 @@ mongoose
     app.use(cors());
     app.use(express.json());
 
+    app.use("/auth", authRouter);
     app.use("/user", userRouter);
     app.use("/admin", adminRouter);
 

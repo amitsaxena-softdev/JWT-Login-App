@@ -2,7 +2,6 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
-import CssBaseline from "@mui/material/CssBaseline";
 import Divider from "@mui/material/Divider";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormLabel from "@mui/material/FormLabel";
@@ -13,163 +12,79 @@ import Radio from "@mui/material/Radio";
 import Link from "@mui/material/Link";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import Stack from "@mui/material/Stack";
-import MuiCard from "@mui/material/Card";
-import { styled } from "@mui/material/styles";
-import { GoogleIcon, FacebookIcon, SitemarkIcon } from "./CustomIcons";
 
-const Card = styled(MuiCard)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  alignSelf: "center",
-  width: "100%",
-  padding: theme.spacing(4),
-  gap: theme.spacing(2),
-  margin: "auto",
-  boxShadow:
-    "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
-  [theme.breakpoints.up("sm")]: {
-    width: "450px",
-  },
-  ...theme.applyStyles("dark", {
-    boxShadow:
-      "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
-  }),
-}));
-
-const SignUpContainer = styled(Stack)(({ theme }) => ({
-  height: "calc((1 - var(--template-frame-height, 0)) * 100dvh)",
-  minHeight: "100%",
-  padding: theme.spacing(2),
-  [theme.breakpoints.up("sm")]: {
-    padding: theme.spacing(4),
-  },
-  "&::before": {
-    content: '""',
-    display: "block",
-    position: "absolute",
-    zIndex: -1,
-    inset: 0,
-    backgroundImage:
-      "radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))",
-    backgroundRepeat: "no-repeat",
-    ...theme.applyStyles("dark", {
-      backgroundImage:
-        "radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))",
-    }),
-  },
-}));
+import { GoogleIcon, FacebookIcon } from "./CustomIcons";
+import { validateFields } from "../../utils/validateFormFields";
+import AuthCard from "../../shared-theme/customizations/AuthCard";
 
 export default function SignUp(props: { disableCustomTheme?: boolean }) {
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-  const [firstNameError, setFirstNameError] = React.useState(false);
-  const [firstNameErrorMessage, setFirstNameErrorMessage] = React.useState("");
-  const [lastNameError, setLastNameError] = React.useState(false);
-  const [lastNameErrorMessage, setLastNameErrorMessage] = React.useState("");
+  const [firstnameError, setfirstnameError] = React.useState(false);
+  const [firstnameErrorMessage, setfirstnameErrorMessage] = React.useState("");
+  const [lastnameError, setlastnameError] = React.useState(false);
+  const [lastnameErrorMessage, setlastnameErrorMessage] = React.useState("");
   const [usernameError, setUsernameError] = React.useState(false);
-  const [usernameErrorrMessage, setUsernameErrorrMessage] = React.useState("");
-  const [gender, setGender] = React.useState("");
+  const [usernameErrorMessage, setUsernameErrorMessage] = React.useState("");
   const [genderError, setGenderError] = React.useState(false);
   const [genderErrorMessage, setGenderErrorMessage] = React.useState("");
 
-  const validateInputs = () => {
-    const email = document.getElementById("email") as HTMLInputElement;
-    const password = document.getElementById("password") as HTMLInputElement;
-    const firstname = document.getElementById("firstname") as HTMLInputElement;
-    const lastname = document.getElementById("lastname") as HTMLInputElement;
-    const username = document.getElementById("username") as HTMLInputElement;
-
-    let isValid = true;
-
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true);
-      setEmailErrorMessage("Please enter a valid email address.");
-      isValid = false;
-    } else {
-      setEmailError(false);
-      setEmailErrorMessage("");
-    }
-
-    if (!password.value || password.value.length < 6) {
-      setPasswordError(true);
-      setPasswordErrorMessage("Password must be at least 6 characters long.");
-      isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage("");
-    }
-
-    if (!firstname.value || firstname.value.length < 1) {
-      setFirstNameError(true);
-      setFirstNameErrorMessage("Firstname is required.");
-      isValid = false;
-    } else {
-      setFirstNameError(false);
-      setFirstNameErrorMessage("");
-    }
-
-    if (!lastname.value || lastname.value.length < 1) {
-      setLastNameError(true);
-      setLastNameErrorMessage("Lastname is required.");
-      isValid = false;
-    } else {
-      setLastNameError(false);
-      setLastNameErrorMessage("");
-    }
-
-    if (!username.value || !/^[a-zA-Z0-9_]{3,20}$/.test(username.value)) {
-      setUsernameError(true);
-      setUsernameErrorrMessage(
-        "Username: 3–20 chars: letters, numbers, _ only."
-      );
-      isValid = false;
-    } else {
-      setUsernameError(false);
-      setUsernameErrorrMessage("");
-    }
-
-    if (gender == "" || (gender != "male" && gender != "female")) {
-      setGenderError(true);
-      setGenderErrorMessage(
-        "Select a gender."
-      );
-      isValid = false;
-    } else {
-      setGenderError(false);
-      setGenderErrorMessage("");
-    }
-
-    return isValid;
-  };
-
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    // For demonstration, remove in production
     event.preventDefault();
-    if (
-      firstNameError ||
-      lastNameError ||
-      usernameError ||
-      emailError ||
-      passwordError ||
-      genderError
-    ) {
+    alert("Form submitted!");
+    try {
+      // Validate inputs before proceeding
+      const formData = new FormData(event.currentTarget);
+      const fields = {
+        firstname: formData.get("firstname") as string,
+        lastname: formData.get("lastname") as string,
+        username: formData.get("username") as string,
+        email: formData.get("email") as string,
+        password: formData.get("password") as string,
+        // gender: (
+        //   document.querySelector(
+        //     'input[name="gender"]:checked'
+        //   ) as HTMLInputElement
+        // )?.value as string,
+      };
+
+      console.log("Now validating fields:", fields);
+      const { isValid, errors } = validateFields(fields);
+
+      // Reset error states
+      setUsernameError(errors.username?.error || false);
+      setUsernameErrorMessage(errors.username?.message || "");
+      setPasswordError(errors.password?.error || false);
+      setPasswordErrorMessage(errors.password?.message || "");
+      setEmailError(errors.email?.error || false);
+      setEmailErrorMessage(errors.email?.message || "");
+      setfirstnameError(errors.firstname?.error || false);
+      setfirstnameErrorMessage(errors.firstname?.message || "");
+      setlastnameError(errors.lastname?.error || false);
+      setlastnameErrorMessage(errors.lastname?.message || "");
+      setGenderError(errors.gender?.error || false);
+      setGenderErrorMessage(errors.gender?.message || "");
+
+      console.log(isValid);
+      // If any field is invalid, do not proceed with submission
+      if (!isValid) {
+        console.error("Form validation failed:", errors);
+        return;
+      }
+
+      console.log("Form is valid, proceeding with submission:", fields);
+    } catch (error) {
+      console.error("Error during form submission:", error);
+      // Handle error, e.g., show an error dialog or message
       return;
     }
-    const data = new FormData(event.currentTarget);
-    console.log({
-      firstname: data.get("firstname"),
-      lastName: data.get("lastname"),
-      username: data.get("username"),
-      email: data.get("email"),
-      password: data.get("password"),
-      gender: gender,
-    });
   };
 
   return (
-    <Card variant="outlined">
+    <AuthCard variant="outlined">
       <Typography
         component="h1"
         variant="h4"
@@ -177,6 +92,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
       >
         Sign up
       </Typography>
+
       <Box
         component="form"
         onSubmit={handleSubmit}
@@ -192,9 +108,9 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
               fullWidth
               id="firstname"
               placeholder="Jon"
-              error={firstNameError}
-              helperText={firstNameErrorMessage}
-              color={firstNameError ? "error" : "primary"}
+              error={firstnameError}
+              helperText={firstnameErrorMessage}
+              color={firstnameError ? "error" : "primary"}
             />
           </FormControl>
           <FormControl>
@@ -206,9 +122,9 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
               fullWidth
               id="lastname"
               placeholder="Snow"
-              error={lastNameError}
-              helperText={lastNameErrorMessage}
-              color={lastNameError ? "error" : "primary"}
+              error={lastnameError}
+              helperText={lastnameErrorMessage}
+              color={lastnameError ? "error" : "primary"}
             />
           </FormControl>
         </Box>
@@ -223,10 +139,11 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
             id="username"
             placeholder="jonsnow123"
             error={usernameError}
-            helperText={usernameErrorrMessage}
+            helperText={usernameErrorMessage}
             color={usernameError ? "error" : "primary"}
           />
         </FormControl>
+
         <FormControl>
           <FormLabel htmlFor="email">Email</FormLabel>
           <TextField
@@ -242,6 +159,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
             color={passwordError ? "error" : "primary"}
           />
         </FormControl>
+
         <FormControl>
           <FormLabel htmlFor="password">Password</FormLabel>
           <TextField
@@ -258,11 +176,10 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
             color={passwordError ? "error" : "primary"}
           />
         </FormControl>
-        <FormControl fullWidth error={genderError}>
-          <FormLabel>Gender</FormLabel>
-          <RadioGroup row name="gender" onChange={(e) => {
-            if (e.target.value) {
-              setGender(e.target.value) }}} value={gender}>
+
+        <FormControl fullWidth error={genderError} required>
+          <FormLabel id="gender-label">Gender</FormLabel>
+          <RadioGroup row aria-labelledby="gender-label" name="gender">
             <FormControlLabel value="male" control={<Radio />} label="Male" />
             <FormControlLabel
               value="female"
@@ -275,14 +192,10 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
 
         <FormControlLabel
           control={<Checkbox value="allowExtraEmails" color="primary" />}
+          name="allowExtraEmails"
           label="I want to receive updates via email."
         />
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          onClick={validateInputs}
-        >
+        <Button type="submit" fullWidth variant="contained">
           Sign up
         </Button>
       </Box>
@@ -313,6 +226,6 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
           </Link>
         </Typography>
       </Box>
-    </Card>
+    </AuthCard>
   );
 }
