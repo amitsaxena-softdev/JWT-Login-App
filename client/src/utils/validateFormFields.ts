@@ -4,7 +4,7 @@ type ValidationResult = {
 };
 
 export const validateFields = (fields: {
-  [key: string]: string;
+  [key: string]: any;
 }): ValidationResult => {
   const errors: ValidationResult["errors"] = {};
   let isValid = true;

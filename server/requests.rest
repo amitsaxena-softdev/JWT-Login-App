@@ -6,33 +6,33 @@ GET http://localhost:3001/admin/getAllUsers
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIxIiwiaWF0IjoxNzUwMTA3MzU1LCJleHAiOjE3NTAxMTA5NTV9.qF0bs8Y2IXtwxeUop79AYOP83zvRz6KaQD_WtwGtU4E
 ###
-POST http://localhost:3001/user/signup
+POST http://localhost:3001/auth/signup
 Content-Type: application/json
 
 {
-  "username": "User2",
-  "password": "user1@123",
+  "firstName": "Amit",
+  "lastName": "Saxena",
+  "email": "amit.saxena@example.com",
+  "username": "amit1234",
+  "password": "amit@123",
   "role": "admin",
-  "firstName": "User",
-  "lastName": "Two",
-  "email": "user.two@example.com",
-  "gender": "female"
+  "gender": "male"
 }
 ###
-POST http://localhost:3001/user/login
+POST http://localhost:3001/auth/login
 Content-Type: application/json
 
 {
-  "username": "User2",
-  "password": "user1@123"
+  "username": "amit1234",
+  "password": "amit@123"
 }
 ###
 POST http://localhost:3001/user/deleteUser
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIyIiwiaWF0IjoxNzUwMTA3NTA5LCJleHAiOjE3NTAxMTExMDl9.kKwn6cfmlgF1HMmcU5GNulMWEUh9N8bjJ2U_1H1vFEo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFtaXQxMjM0IiwiaWF0IjoxNzUwMzczNzMwLCJleHAiOjE3NTAzNzczMzB9.ZLx7fH00enYV6YMvYaH3hxQOADxhn-Lc99XtKrFjrI8
 
 {
-  "username": "User2"
+  "username": "amit1234"
 }
 ###
 POST http://localhost:3001/admin/deleteUserByAdmin

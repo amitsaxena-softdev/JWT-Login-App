@@ -15,7 +15,12 @@ import { validateFields } from "../../utils/validateFormFields";
 import AuthCard from "../../shared-theme/customizations/AuthCard";
 import ErrorDialog from "../../utils/ErrorDialog";
 
-export default function SignInCard() {
+interface SignInCardProps {
+  setSignIn: (value: boolean) => void;
+  setIsAuthenticated: (value: boolean) => void;
+}
+
+export default function SignInCard({ setSignIn, setIsAuthenticated }: SignInCardProps) {
   const [usernameError, setUsernameError] = useState(false);
   const [usernameErrorMessage, setUsernameErrorMessage] = useState("");
   const [passwordError, setPasswordError] = useState(false);
@@ -71,10 +76,10 @@ export default function SignInCard() {
       if (!response.ok) {
         throw new Error(result.message || "Login failed");
       }
-      // Forward to dashboard on successful login
-      window.location.href = "/dashboard";
       // Token z. B. in localStorage speichern
       localStorage.setItem("token", result.token);
+      // Forward to dashboard on successful login
+      setIsAuthenticated(true);
       // Set success message and open snackbar
       // setSuccessMsg("User logged in successfully!");
       // setSuccessOpen(true);
@@ -161,8 +166,8 @@ export default function SignInCard() {
           Don&apos;t have an account?{" "}
           <span>
             <Link
-              component="a"
-              href="/signup"
+              component="button"
+              onClick={() => setSignIn(false)}
               variant="body2"
               sx={{ alignSelf: "center" }}
             >

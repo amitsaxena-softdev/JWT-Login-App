@@ -88,18 +88,22 @@ const signup = async (req, res) => {
       gender,
     });
 
+    // Creating a token for the user
+    const token = jwt.sign(
+      { username: newUser.username },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+
     await newUser.save();
     res.status(200).json({
-      success: true,
       message: "User created successfully",
-      error: null,
+      token,
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({
-      success: false,
-      message: "Error creating user",
-      error: err.message,
+      message: err.message,
     });
   }
 };

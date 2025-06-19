@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
@@ -16,30 +16,39 @@ import Typography from "@mui/material/Typography";
 import { GoogleIcon, FacebookIcon } from "./CustomIcons";
 import { validateFields } from "../../utils/validateFormFields";
 import AuthCard from "../../shared-theme/customizations/AuthCard";
+import ErrorDialog from "../../utils/ErrorDialog";
 
-export default function SignUp(props: { disableCustomTheme?: boolean }) {
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-  const [firstnameError, setfirstnameError] = React.useState(false);
-  const [firstnameErrorMessage, setfirstnameErrorMessage] = React.useState("");
-  const [lastnameError, setlastnameError] = React.useState(false);
-  const [lastnameErrorMessage, setlastnameErrorMessage] = React.useState("");
-  const [usernameError, setUsernameError] = React.useState(false);
-  const [usernameErrorMessage, setUsernameErrorMessage] = React.useState("");
-  const [genderError, setGenderError] = React.useState(false);
-  const [genderErrorMessage, setGenderErrorMessage] = React.useState("");
+export default function SignUp(props: {
+  disableCustomTheme?: boolean;
+  setSignIn: (signIn: boolean) => void;
+  setIsAuthenticated: (value: boolean) => void;
+}) {
+  const { disableCustomTheme, setSignIn, setIsAuthenticated } = props;
+  const [emailError, setEmailError] = useState(false);
+  const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
+  const [firstNameError, setFirstNameError] = useState(false);
+  const [firstNameErrorMessage, setFirstNameErrorMessage] = useState("");
+  const [lastNameError, setLastNameError] = useState(false);
+  const [lastNameErrorMessage, setLastNameErrorMessage] = useState("");
+  const [usernameError, setUsernameError] = useState(false);
+  const [usernameErrorMessage, setUsernameErrorMessage] = useState("");
+  const [genderError, setGenderError] = useState(false);
+  const [genderErrorMessage, setGenderErrorMessage] = useState("");
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     // For demonstration, remove in production
     event.preventDefault();
     try {
       // Validate inputs before proceeding
       const formData = new FormData(event.currentTarget);
       const fields = {
-        firstname: formData.get("firstname") as string,
-        lastname: formData.get("lastname") as string,
+        firstName: formData.get("firstName") as string,
+        lastName: formData.get("lastName") as string,
         username: formData.get("username") as string,
         email: formData.get("email") as string,
         password: formData.get("password") as string,
@@ -48,6 +57,8 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
             'input[name="gender"]:checked'
           ) as HTMLInputElement
         )?.value as string,
+        role: formData.get("admin") === "on" ? "admin" : "user",
+        allowExtraEmails: formData.has("allowExtraEmails"),
       };
 
       const { isValid, errors } = validateFields(fields);
@@ -59,10 +70,10 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
       setPasswordErrorMessage(errors.password?.message || "");
       setEmailError(errors.email?.error || false);
       setEmailErrorMessage(errors.email?.message || "");
-      setfirstnameError(errors.firstname?.error || false);
-      setfirstnameErrorMessage(errors.firstname?.message || "");
-      setlastnameError(errors.lastname?.error || false);
-      setlastnameErrorMessage(errors.lastname?.message || "");
+      setFirstNameError(errors.firstName?.error || false);
+      setFirstNameErrorMessage(errors.firstName?.message || "");
+      setLastNameError(errors.lastName?.error || false);
+      setLastNameErrorMessage(errors.lastName?.message || "");
       setGenderError(errors.gender?.error || false);
       setGenderErrorMessage(errors.gender?.message || "");
 
@@ -72,11 +83,24 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
         return;
       }
 
-      console.log(fields);
+      console.log(JSON.stringify(fields));
+      // console.log(fields); // Only for demonstration, remove in production
+      // Proceed with form submission, e.g., send data to the server
+      const response = await fetch("http://localhost:3001/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fields),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || "Login failed");
+      }
+      localStorage.setItem("token", result.token);
+      setIsAuthenticated(true);
     } catch (error) {
-      console.error("Error during form submission:", error);
-      // Handle error, e.g., show an error dialog or message
-      return;
+      const msg = error.message || "Something went wrong.";
+      setErrorMessage(msg);
+      setErrorDialogOpen(true);
     }
   };
 
@@ -97,31 +121,31 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
       >
         <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
           <FormControl>
-            <FormLabel htmlFor="firstname">Firstname</FormLabel>
+            <FormLabel htmlFor="firstName">firstName</FormLabel>
             <TextField
-              autoComplete="firstname"
-              name="firstname"
+              autoComplete="firstName"
+              name="firstName"
               required
               fullWidth
-              id="firstname"
+              id="firstName"
               placeholder="Jon"
-              error={firstnameError}
-              helperText={firstnameErrorMessage}
-              color={firstnameError ? "error" : "primary"}
+              error={firstNameError}
+              helperText={firstNameErrorMessage}
+              color={firstNameError ? "error" : "primary"}
             />
           </FormControl>
           <FormControl>
-            <FormLabel htmlFor="lastname">Lastname</FormLabel>
+            <FormLabel htmlFor="lastName">lastName</FormLabel>
             <TextField
-              autoComplete="lastname"
-              name="lastname"
+              autoComplete="lastName"
+              name="lastName"
               required
               fullWidth
-              id="lastname"
+              id="lastName"
               placeholder="Snow"
-              error={lastnameError}
-              helperText={lastnameErrorMessage}
-              color={lastnameError ? "error" : "primary"}
+              error={lastNameError}
+              helperText={lastNameErrorMessage}
+              color={lastNameError ? "error" : "primary"}
             />
           </FormControl>
         </Box>
@@ -174,21 +198,30 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
           />
         </FormControl>
 
-        <FormControl fullWidth error={genderError} required>
-          <FormLabel id="gender-label">Gender</FormLabel>
-          <RadioGroup row aria-labelledby="gender-label" name="gender">
-            <FormControlLabel value="male" control={<Radio />} label="Male" />
-            <FormControlLabel
-              value="female"
-              control={<Radio />}
-              label="Female"
-            />
-          </RadioGroup>
-          <FormHelperText>{genderErrorMessage}</FormHelperText>
-        </FormControl>
+        <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+
+          <FormControl fullWidth error={genderError} required>
+            <FormLabel id="gender-label">Gender</FormLabel>
+            <RadioGroup row aria-labelledby="gender-label" name="gender">
+              <FormControlLabel value="male" control={<Radio />} label="Male" />
+              <FormControlLabel
+                value="female"
+                control={<Radio />}
+                label="Female"
+              />
+            </RadioGroup>
+            <FormHelperText>{genderErrorMessage}</FormHelperText>
+          </FormControl>
+
+          <FormControlLabel
+          control={<Checkbox value="admin" color="primary" />}
+          name="admin"
+          label="Admin"
+        />
+        </Box>
 
         <FormControlLabel
-          control={<Checkbox value="allowExtraEmails" color="primary" />}
+          control={<Checkbox color="primary" />}
           name="allowExtraEmails"
           label="I want to receive updates via email."
         />
@@ -218,11 +251,21 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
         </Button>
         <Typography sx={{ textAlign: "center" }}>
           Already have an account?{" "}
-          <Link href="/" variant="body2" sx={{ alignSelf: "center" }}>
+          <Link
+            component="button"
+            onClick={() => setSignIn(true)}
+            variant="body2"
+            sx={{ alignSelf: "center" }}
+          >
             Sign in
           </Link>
         </Typography>
       </Box>
+      <ErrorDialog
+              open={errorDialogOpen}
+              onClose={() => setErrorDialogOpen(false)}
+              message={errorMessage}
+            />
     </AuthCard>
   );
 }
