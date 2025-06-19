@@ -113,6 +113,5 @@ export const validateFields = (fields: {
     }
   }
 
-  console.log("Validation errors:", errors);
   return { isValid, errors };
 };

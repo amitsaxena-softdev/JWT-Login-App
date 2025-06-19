@@ -34,7 +34,6 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     // For demonstration, remove in production
     event.preventDefault();
-    alert("Form submitted!");
     try {
       // Validate inputs before proceeding
       const formData = new FormData(event.currentTarget);
@@ -44,14 +43,13 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
         username: formData.get("username") as string,
         email: formData.get("email") as string,
         password: formData.get("password") as string,
-        // gender: (
-        //   document.querySelector(
-        //     'input[name="gender"]:checked'
-        //   ) as HTMLInputElement
-        // )?.value as string,
+        gender: (
+          document.querySelector(
+            'input[name="gender"]:checked'
+          ) as HTMLInputElement
+        )?.value as string,
       };
 
-      console.log("Now validating fields:", fields);
       const { isValid, errors } = validateFields(fields);
 
       // Reset error states
@@ -68,14 +66,13 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
       setGenderError(errors.gender?.error || false);
       setGenderErrorMessage(errors.gender?.message || "");
 
-      console.log(isValid);
       // If any field is invalid, do not proceed with submission
       if (!isValid) {
         console.error("Form validation failed:", errors);
         return;
       }
 
-      console.log("Form is valid, proceeding with submission:", fields);
+      console.log(fields);
     } catch (error) {
       console.error("Error during form submission:", error);
       // Handle error, e.g., show an error dialog or message
