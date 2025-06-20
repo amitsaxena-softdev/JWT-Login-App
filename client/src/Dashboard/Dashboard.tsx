@@ -100,7 +100,7 @@ const Dashboard = () => {
   const handleDeleteUserByAdmin = async (userId: string) => {
   try {
     const res = await fetch("http://localhost:3001/admin/deleteUserByAdmin", {
-      method: "POST",
+      method: "DELETE",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,

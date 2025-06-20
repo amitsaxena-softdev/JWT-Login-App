@@ -4,7 +4,7 @@ const { getAllUsers, deleteUserByAdmin } = require('../Controllers/adminControll
 
 router.get('/getAllUsers', getAllUsers);
 
-router.post('/deleteUserByAdmin', deleteUserByAdmin);
+router.delete('/deleteUserByAdmin', deleteUserByAdmin);
 
 router.get('/', (req, res) => {
   res.send('This is the Admin Router!');
