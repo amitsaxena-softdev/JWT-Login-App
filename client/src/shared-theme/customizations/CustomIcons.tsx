@@ -1,7 +1,7 @@
 import * as React from 'react';
 import SvgIcon from '@mui/material/SvgIcon';
 
-export function SitemarkIcon() {
+export function SitemarkIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <SvgIcon sx={{ height: 60, width: 80, mr: 0 }}>
       <svg

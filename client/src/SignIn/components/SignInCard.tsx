@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
@@ -10,17 +10,26 @@ import Link from "@mui/material/Link";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import ForgotPassword from "./ForgetPassword";
-import { GoogleIcon, FacebookIcon, SitemarkIcon } from "./CustomIcons";
+import {
+  GoogleIcon,
+  FacebookIcon,
+  SitemarkIcon,
+} from "../../shared-theme/customizations/CustomIcons";
 import { validateFields } from "../../utils/validateFormFields";
 import AuthCard from "../../shared-theme/customizations/AuthCard";
-import ErrorDialog from "../../utils/ErrorDialog";
+import AppDialog from "../../shared-theme/AppDialog";
+
+import { useSnackbar } from "../../utils/SnackbarContext";
 
 interface SignInCardProps {
   setSignIn: (value: boolean) => void;
   setIsAuthenticated: (value: boolean) => void;
 }
 
-export default function SignInCard({ setSignIn, setIsAuthenticated }: SignInCardProps) {
+export default function SignInCard({
+  setSignIn,
+  setIsAuthenticated,
+}: SignInCardProps) {
   const [usernameError, setUsernameError] = useState(false);
   const [usernameErrorMessage, setUsernameErrorMessage] = useState("");
   const [passwordError, setPasswordError] = useState(false);
@@ -29,6 +38,9 @@ export default function SignInCard({ setSignIn, setIsAuthenticated }: SignInCard
 
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+  const showSnackbar = useSnackbar();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -47,24 +59,20 @@ export default function SignInCard({ setSignIn, setIsAuthenticated }: SignInCard
       username: formData.get("username") as string,
       password: formData.get("password") as string,
     };
-
-    const { isValid, errors } = validateFields(fields);
-
-    // Reset error states
-    setUsernameError(errors.username?.error || false);
-    setUsernameErrorMessage(errors.username?.message || "");
-    setPasswordError(errors.password?.error || false);
-    setPasswordErrorMessage(errors.password?.message || "");
-
-    // If any field is invalid, do not proceed with submission
-    if (!isValid) {
-      return;
-    }
-    // Proceed with form submission, e.g., send data to the server
-    // For demonstration, we'll just log the fields
-    // console.log(fields); // Only for demonstration, remove in production
-    // Now making a POST request to the server
     try {
+      const { isValid, errors } = validateFields(fields);
+
+      // Reset error states
+      setUsernameError(errors.username?.error || false);
+      setUsernameErrorMessage(errors.username?.message || "");
+      setPasswordError(errors.password?.error || false);
+      setPasswordErrorMessage(errors.password?.message || "");
+
+      // If any field is invalid, do not proceed with submission
+      if (!isValid) {
+        return;
+      }
+
       const response = await fetch("http://localhost:3001/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -73,17 +81,28 @@ export default function SignInCard({ setSignIn, setIsAuthenticated }: SignInCard
 
       const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(result.message || "Login failed");
+      if (response.ok) {
+        const rememberMe = formData.get("remember") === "on";
+        console.log(rememberMe);
+        if (rememberMe) {
+          // Store token in localStorage for persistent login
+          localStorage.setItem("token", result.token);
+        } else {
+          // Store token in sessionStorage for session-only login
+          sessionStorage.setItem("token", result.token);
+          localStorage.removeItem("token");
+        }
+        showSnackbar({
+          message: result.message || "Login successful",
+          severity: "success",
+        });
+        setIsAuthenticated(true);
+      } else {
+        showSnackbar({
+          message: result.message || "Login failed",
+          severity: "error",
+        });
       }
-      // Token z. B. in localStorage speichern
-      localStorage.setItem("token", result.token);
-      // Forward to dashboard on successful login
-      setIsAuthenticated(true);
-      // Set success message and open snackbar
-      // setSuccessMsg("User logged in successfully!");
-      // setSuccessOpen(true);
-
     } catch (error: any) {
       const msg = error.message || "Something went wrong.";
       setErrorMessage(msg);
@@ -155,7 +174,8 @@ export default function SignInCard({ setSignIn, setIsAuthenticated }: SignInCard
           />
         </FormControl>
         <FormControlLabel
-          control={<Checkbox value="remember" color="primary" />}
+          control={<Checkbox color="primary" />}
+          name="remember"
           label="Remember me"
         />
         <ForgotPassword open={open} handleClose={handleClose} />
@@ -195,10 +215,12 @@ export default function SignInCard({ setSignIn, setIsAuthenticated }: SignInCard
           Sign in with Facebook
         </Button>
       </Box>
-      <ErrorDialog
+      <AppDialog
         open={errorDialogOpen}
         onClose={() => setErrorDialogOpen(false)}
+        title="Error"
         message={errorMessage}
+        type="error"
       />
     </AuthCard>
   );

@@ -7,6 +7,7 @@ import { feedbackCustomizations } from './customizations/feedback';
 import { navigationCustomizations } from './customizations/navigation';
 import { surfacesCustomizations } from './customizations/surface';
 import { colorSchemes, typography, shadows, shape } from './themePrimitives';
+import { CssBaseline } from '@mui/material';
 
 interface AppThemeProps {
   children: React.ReactNode;
@@ -47,6 +48,7 @@ export default function AppTheme(props: AppThemeProps) {
   }
   return (
     <ThemeProvider theme={theme} disableTransitionOnChange>
+      <CssBaseline enableColorScheme />
       {children}
     </ThemeProvider>
   );

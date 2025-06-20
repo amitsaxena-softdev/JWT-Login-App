@@ -5,7 +5,7 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutlineRounded";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettingsRounded";
 import SecurityIcon from "@mui/icons-material/SecurityRounded";
 import BuildCircleIcon from "@mui/icons-material/BuildCircleRounded";
-import { SitemarkIcon } from "./CustomIcons";
+import { SitemarkIcon } from "../../shared-theme/customizations/CustomIcons";
 
 const items = [
   {

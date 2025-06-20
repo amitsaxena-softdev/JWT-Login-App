@@ -13,32 +13,38 @@ import Link from "@mui/material/Link";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 
-import { GoogleIcon, FacebookIcon } from "./CustomIcons";
+import {
+  GoogleIcon,
+  FacebookIcon,
+} from "../../shared-theme/customizations/CustomIcons";
 import { validateFields } from "../../utils/validateFormFields";
 import AuthCard from "../../shared-theme/customizations/AuthCard";
-import ErrorDialog from "../../utils/ErrorDialog";
+import { useSnackbar } from "../../utils/SnackbarContext";
+import AppDialog from "../../shared-theme/AppDialog";
 
 export default function SignUp(props: {
   disableCustomTheme?: boolean;
   setSignIn: (signIn: boolean) => void;
   setIsAuthenticated: (value: boolean) => void;
 }) {
-  const { disableCustomTheme, setSignIn, setIsAuthenticated } = props;
+  const { setSignIn } = props;
   const [emailError, setEmailError] = useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  const [emaildialogMessage, setEmaildialogMessage] = useState("");
   const [passwordError, setPasswordError] = useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
+  const [passworddialogMessage, setPassworddialogMessage] = useState("");
   const [firstNameError, setFirstNameError] = useState(false);
-  const [firstNameErrorMessage, setFirstNameErrorMessage] = useState("");
+  const [firstNamedialogMessage, setFirstNamedialogMessage] = useState("");
   const [lastNameError, setLastNameError] = useState(false);
-  const [lastNameErrorMessage, setLastNameErrorMessage] = useState("");
+  const [lastNamedialogMessage, setLastNamedialogMessage] = useState("");
   const [usernameError, setUsernameError] = useState(false);
-  const [usernameErrorMessage, setUsernameErrorMessage] = useState("");
+  const [usernamedialogMessage, setUsernamedialogMessage] = useState("");
   const [genderError, setGenderError] = useState(false);
   const [genderErrorMessage, setGenderErrorMessage] = useState("");
 
-  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState("");
+
+  const showSnackbar = useSnackbar();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     // For demonstration, remove in production
@@ -65,15 +71,15 @@ export default function SignUp(props: {
 
       // Reset error states
       setUsernameError(errors.username?.error || false);
-      setUsernameErrorMessage(errors.username?.message || "");
+      setUsernamedialogMessage(errors.username?.message || "");
       setPasswordError(errors.password?.error || false);
-      setPasswordErrorMessage(errors.password?.message || "");
+      setPassworddialogMessage(errors.password?.message || "");
       setEmailError(errors.email?.error || false);
-      setEmailErrorMessage(errors.email?.message || "");
+      setEmaildialogMessage(errors.email?.message || "");
       setFirstNameError(errors.firstName?.error || false);
-      setFirstNameErrorMessage(errors.firstName?.message || "");
+      setFirstNamedialogMessage(errors.firstName?.message || "");
       setLastNameError(errors.lastName?.error || false);
-      setLastNameErrorMessage(errors.lastName?.message || "");
+      setLastNamedialogMessage(errors.lastName?.message || "");
       setGenderError(errors.gender?.error || false);
       setGenderErrorMessage(errors.gender?.message || "");
 
@@ -92,15 +98,22 @@ export default function SignUp(props: {
         body: JSON.stringify(fields),
       });
       const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.message || "Login failed");
+      if (response.ok) {
+        showSnackbar({
+          message: result.message || "User created successfully",
+          severity: "success",
+        });
+        setSignIn(true);
+      } else {
+        showSnackbar({
+          message: result.message || "Something went wrong.",
+          severity: "error",
+        });
       }
-      localStorage.setItem("token", result.token);
-      setIsAuthenticated(true);
     } catch (error) {
       const msg = error.message || "Something went wrong.";
-      setErrorMessage(msg);
-      setErrorDialogOpen(true);
+      setDialogMessage(msg);
+      setFormDialogOpen(true);
     }
   };
 
@@ -121,7 +134,7 @@ export default function SignUp(props: {
       >
         <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
           <FormControl>
-            <FormLabel htmlFor="firstName">firstName</FormLabel>
+            <FormLabel htmlFor="firstName">First Name</FormLabel>
             <TextField
               autoComplete="firstName"
               name="firstName"
@@ -130,12 +143,12 @@ export default function SignUp(props: {
               id="firstName"
               placeholder="Jon"
               error={firstNameError}
-              helperText={firstNameErrorMessage}
+              helperText={firstNamedialogMessage}
               color={firstNameError ? "error" : "primary"}
             />
           </FormControl>
           <FormControl>
-            <FormLabel htmlFor="lastName">lastName</FormLabel>
+            <FormLabel htmlFor="lastName">Last Name</FormLabel>
             <TextField
               autoComplete="lastName"
               name="lastName"
@@ -144,7 +157,7 @@ export default function SignUp(props: {
               id="lastName"
               placeholder="Snow"
               error={lastNameError}
-              helperText={lastNameErrorMessage}
+              helperText={lastNamedialogMessage}
               color={lastNameError ? "error" : "primary"}
             />
           </FormControl>
@@ -160,7 +173,7 @@ export default function SignUp(props: {
             id="username"
             placeholder="jonsnow123"
             error={usernameError}
-            helperText={usernameErrorMessage}
+            helperText={usernamedialogMessage}
             color={usernameError ? "error" : "primary"}
           />
         </FormControl>
@@ -176,7 +189,7 @@ export default function SignUp(props: {
             autoComplete="email"
             variant="outlined"
             error={emailError}
-            helperText={emailErrorMessage}
+            helperText={emaildialogMessage}
             color={passwordError ? "error" : "primary"}
           />
         </FormControl>
@@ -193,13 +206,12 @@ export default function SignUp(props: {
             autoComplete="new-password"
             variant="outlined"
             error={passwordError}
-            helperText={passwordErrorMessage}
+            helperText={passworddialogMessage}
             color={passwordError ? "error" : "primary"}
           />
         </FormControl>
 
         <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-
           <FormControl fullWidth error={genderError} required>
             <FormLabel id="gender-label">Gender</FormLabel>
             <RadioGroup row aria-labelledby="gender-label" name="gender">
@@ -214,10 +226,10 @@ export default function SignUp(props: {
           </FormControl>
 
           <FormControlLabel
-          control={<Checkbox value="admin" color="primary" />}
-          name="admin"
-          label="Admin"
-        />
+            control={<Checkbox color="primary" />}
+            name="admin"
+            label="Admin"
+          />
         </Box>
 
         <FormControlLabel
@@ -261,11 +273,13 @@ export default function SignUp(props: {
           </Link>
         </Typography>
       </Box>
-      <ErrorDialog
-              open={errorDialogOpen}
-              onClose={() => setErrorDialogOpen(false)}
-              message={errorMessage}
-            />
+      <AppDialog
+        open={formDialogOpen}
+        onClose={() => setFormDialogOpen(false)}
+        title="Error"
+        message={dialogMessage}
+        type="error"
+      />
     </AuthCard>
   );
 }

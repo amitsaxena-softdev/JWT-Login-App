@@ -35,7 +35,7 @@ const getAllUsers = async (req, res) => {
 };
 
 const deleteUserByAdmin = async (req, res) => {
-  const { username } = req.body;
+  const { userId } = req.body;
   const token = req.headers["authorization"]?.split(" ")[1];
 
   try {
@@ -49,35 +49,29 @@ const deleteUserByAdmin = async (req, res) => {
     if (!tokenUser || tokenUser.role !== "admin") {
       throw new Error("Access forbidden. Admins only!");
     }
-    if (!username) {
-      throw new Error("Username of to be deleted user is required!");
+    if (!userId) {
+      throw new Error("UserID of to be deleted user is required!");
     }
 
-    if (tokenUser.username == username.toLowerCase()) {
+    if (tokenUser._id == userId) {
       throw new Error("You cannot delete your own account as an admin!");
     }
 
-    User.deleteOne({ username: username.toLowerCase() })
+    User.deleteOne({ _id: userId })
       .then(() => {
         res.status(200).json({
-          success: true,
           message: "User deleted successfully",
-          error: null,
         });
       })
       .catch((err) => {
         console.error(err);
         res.status(500).json({
-          success: false,
-          message: "Error deleting user",
-          error: err.message,
+          message: err.message,
         });
       });
   } catch (ex) {
     res.status(400).json({
-      success: false,
-      message: "Invalid token or error deleting user",
-      error: ex.message,
+      message: ex.message,
     });
   }
 };
