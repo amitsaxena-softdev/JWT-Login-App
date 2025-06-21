@@ -49,14 +49,21 @@ cd jwt-login-app
 
 ### 2. Backend Setup
 
+First, login in to your MongoDB Atlas Account, and copy your MongoDB URI.
+
+Then to create your own secret JWT key, go to the terminal and type:
+```bash
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
+Then copy the template from .env.example to .env from terminal:
 ```bash
 cp .env.example .env
 ```
 Edit the .env file and fill in:
 ```bash
 PORT=3001
-MONGO_URI=<Your MongoDB URI>
-JWT_SECRET=<yourSecretKeyHere>
+MONGO_URI=Your_MongoDB_URI
+JWT_SECRET=yourSecretKeyHere
 ````
 Then install and run the server:
 ```bash
