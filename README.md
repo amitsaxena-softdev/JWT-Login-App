@@ -2,6 +2,8 @@
 
 A full-stack web application demonstrating modern authentication and role-based access control using **JWT (JSON Web Tokens)**. The app includes user signup, login, profile management, and an admin panel with the ability to manage users.
 
+![App Screenshot](https://github.com/amitsaxena-softdev/JWT-Login-App/blob/a68bb8335218c65c013092eff25879bcfcfee86a/client/src/assets/screenshot.png)
+
 ---
 
 ## 🚀 Features
@@ -72,9 +74,7 @@ Now open the app in your browser:
 http://localhost:5173
 
 ---
-```markdown
-![App Screenshot](./client/src/assets/screenshot.png)
-```
+
 # 📁 Project Structure
 ```bash
 client/                        # React frontend (Vite + MUI)
