@@ -5,7 +5,6 @@ A full-stack web application demonstrating modern authentication and role-based 
 ---
 
 ## 🚀 Features
-
 - ✅ Secure user authentication using JWT
 - ✅ Role-based access: User vs. Admin
 - ✅ Admin dashboard with user listing and delete actions
