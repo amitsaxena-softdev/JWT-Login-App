@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../Models/userModel");
+const BlacklistedToken = require("../Models/BlacklistedToken");
 
 const getAllUsers = async (req, res) => {
   const token = req.headers["authorization"]?.split(" ")[1];
@@ -9,6 +10,12 @@ const getAllUsers = async (req, res) => {
     if (!token) {
       throw new Error("Access denied. No token provided.");
     }
+    // Verify the token
+    const blacklistedToken = await BlacklistedToken.findOne({ token });
+    if (blacklistedToken) {
+      throw new Error("Access denied. Token is blacklisted.");
+    }
+    // Decode the token to get the username
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const existingUser = await User.findOne({
       username: decoded.username.toLowerCase(),
@@ -41,6 +48,11 @@ const deleteUserByAdmin = async (req, res) => {
   try {
     if (!token) {
       throw new Error("Access denied. No token provided.");
+    }
+    // Verify the token
+    const blacklistedToken = await BlacklistedToken.findOne({ token });
+    if (blacklistedToken) {
+      throw new Error("Access denied. Token is blacklisted.");
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const tokenUser = await User.findOne({

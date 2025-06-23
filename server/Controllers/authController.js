@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../Models/userModel");
+const BlacklistedToken = require("../Models/BlacklistedToken"); 
 
 const login = async (req, res) => {
   const { username, password } = req.body;
@@ -100,7 +101,67 @@ const signup = async (req, res) => {
   }
 };
 
+const logout = async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  try {
+    // Verify the token
+    jwt.verify(token, process.env.JWT_SECRET_KEY);
+    // If the token is valid, blacklist it by saving it to the database
+    // First extract the expiry time from the token
+    const decodedToken = jwt.decode(token);
+    if (!decodedToken || !decodedToken.exp) {
+      throw new Error("Invalid token");
+    }
+    // Create a new BlacklistedToken instance
+    // and save it to the database with an expiry time of 1 hour
+    const expiresAt = new Date(decodedToken.exp * 1000); // Convert seconds to milliseconds
+    if (expiresAt < new Date()) {
+      throw new Error("Token has already expired");
+    }
+    const blacklistedToken = new BlacklistedToken({
+      token,
+      expiresAt: expiresAt,
+    });
+    await blacklistedToken.save();
+
+    res.status(200).json({ message: "Logout successful" });
+  } catch (err) {
+    res.status(401).json({ message: err.message });
+  }
+  
+};
+
+const checkToken = async (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  try {
+    // Check if the token is blacklisted
+    const blacklistedToken = await BlacklistedToken.findOne({ token });
+    if (blacklistedToken) {
+      throw new Error("Access denied. Token is blacklisted.");
+    }
+
+    // Verify the token
+    jwt.verify(token, process.env.JWT_SECRET_KEY);
+
+    res.status(200).json({ message: "Token is valid" });
+  } catch (err) {
+    res.status(401).json({ message: err.message });
+  }
+};
+
 module.exports = {
   login,
-  signup
+  signup,
+  logout,
+  checkToken
 };

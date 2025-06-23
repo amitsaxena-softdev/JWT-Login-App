@@ -13,24 +13,49 @@ function App() {
     return sessionStorage.getItem("token") || localStorage.getItem("token");
   };
 
-  const checkToken = () => {
-    const token = getStoredToken();
-    if (!token) return false;
+  const validateTokenWithServer = async (token) => {
+  try {
+    const response = await fetch("http://localhost:3001/auth/checkToken", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      return payload.exp > Date.now() / 1000;
-    } catch (err) {
-      console.error("Invalid token format", err);
-      return false;
-    }
-  };
+    if (!response.ok) throw new Error("Token invalid");
+
+    return true;
+  } catch (err) {
+    return false;
+  }
+};
+
+const checkToken = async () => {
+  const token = getStoredToken();
+  if (!token) return false;
+
+  // Client side validation (e.g., expiration)
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    if (payload.exp < Date.now() / 1000) return false;
+  } catch (err) {
+    console.error("Invalid token format", err);
+    return false;
+  }
+
+  // Server side validation
+  const serverCheck = await validateTokenWithServer(token);
+  return serverCheck;
+};
 
   // Check token on initial load
   useEffect(() => {
-    const auth = checkToken();
-    setIsAuthenticated(auth);
-  }, []);
+  const verify = async () => {
+    const isValid = await checkToken();
+    setIsAuthenticated(isValid);
+  };
+  verify();
+}, []);
+
 
   return (
     <SnackbarProvider>

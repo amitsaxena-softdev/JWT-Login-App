@@ -83,7 +83,6 @@ export default function SignInCard({
 
       if (response.ok) {
         const rememberMe = formData.get("remember") === "on";
-        console.log(rememberMe);
         if (rememberMe) {
           // Store token in localStorage for persistent login
           localStorage.setItem("token", result.token);

@@ -57,7 +57,7 @@ const Dashboard = () => {
         }
       } catch (error) {
         showSnackbar({
-          message: "Failed to fetch user data. Please try again later.",
+          message: error.message || "Failed to fetch user data. Please try again.",
           severity: "error",
         });
         setLoading(false);
@@ -98,37 +98,45 @@ const Dashboard = () => {
   };
 
   const handleDeleteUserByAdmin = async (userId: string) => {
-  try {
-    const res = await fetch("http://localhost:3001/admin/deleteUserByAdmin", {
-      method: "DELETE",
+    try {
+      const res = await fetch("http://localhost:3001/admin/deleteUserByAdmin", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        setUsersList((prev) => prev.filter((user) => user._id !== userId));
+        showSnackbar({
+          message: result.message || "User deleted successfully",
+          severity: "success",
+        });
+      } else {
+        throw new Error(result.message || "Error deleting user");
+      }
+    } catch (error: any) {
+      showSnackbar({
+        message: error.message || "Failed to delete user. Please try again.",
+        severity: "error",
+      });
+    }
+  };
+
+  const handleLogout = async () => {
+    const token =
+      sessionStorage.getItem("token") || localStorage.getItem("token");
+    // Call the logout endpoint to invalidate the token
+    await fetch("http://localhost:3001/auth/logout", {
+      method: "POST",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ userId }),
     });
-
-    const result = await res.json();
-
-    if (res.ok) {
-      setUsersList((prev) => prev.filter((user) => user._id !== userId));
-      showSnackbar({
-        message: result.message || "User deleted successfully",
-        severity: "success",
-      });
-    } else {
-      throw new Error(result.message || "Error deleting user");
-    }
-  } catch (error: any) {
-    showSnackbar({
-      message: error.message || "Failed to delete user. Please try again.",
-      severity: "error",
-    });
-  }
-};
-
-
-  const handleLogout = () => {
     localStorage.removeItem("token");
     sessionStorage.removeItem("token");
     window.location.reload();
