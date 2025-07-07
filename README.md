@@ -61,21 +61,20 @@ JWT-Login-App/
 
 ## 🛠️ Technology Stack
 
-### Frontend
-- **React 18** - UI framework
-- **Material-UI (MUI)** - Component library
-- **React Router** - Client-side routing
-- **Vite** - Build tool and dev server
-- **TypeScript** - Type safety (partial)
-
-### Backend
-- **Node.js** - Runtime environment
-- **Express.js** - Web framework
-- **MongoDB** - Database
-- **Mongoose** - ODM for MongoDB
-- **JWT** - Token-based authentication
-- **bcrypt** - Password hashing
-- **CORS** - Cross-origin resource sharing
+| Category | Technology | Version | Purpose |
+|----------|------------|---------|---------|
+| **Frontend** | React | 18.x | UI framework |
+| | Material-UI (MUI) | 5.x | Component library |
+| | React Router | 6.x | Client-side routing |
+| | Vite | 6.x | Build tool & dev server |
+| | TypeScript | 5.x | Type safety |
+| **Backend** | Node.js | 18+ | Runtime environment |
+| | Express.js | 4.18.2 | Web framework |
+| | MongoDB | 6+ | Database |
+| | Mongoose | 7.x | ODM for MongoDB |
+| | JWT | 9.x | Token-based authentication |
+| | bcrypt | 5.x | Password hashing |
+| | CORS | 2.8.x | Cross-origin resource sharing |
 
 ## 🚀 Getting Started
 
