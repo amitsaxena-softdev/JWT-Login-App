@@ -1,161 +1,334 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../Models/userModel");
-const BlacklistedToken = require("../Models/BlacklistedToken"); 
+const BlacklistedToken = require("../Models/BlacklistedToken");
 
+/**
+ * Authentication Controller
+ * 
+ * Handles user authentication, registration, logout, and token validation.
+ * Implements JWT-based authentication with secure password hashing and
+ * token blacklisting for logout functionality.
+ */
+
+/**
+ * User Login Handler
+ * 
+ * Authenticates user credentials and issues a JWT token upon successful login.
+ * Performs password verification using bcrypt and creates a session token.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with token or error message
+ */
 const login = async (req, res) => {
   const { username, password } = req.body;
 
   try {
+    // Input validation
     if (!username || !password) {
-      throw new Error("Username and password are required!");
-    }
-    const user = await User.findOne({ username: username.toLowerCase() });
-    if (!user || !bcrypt.compareSync(password, user.password)) {
-      // Raising an exception with a messsage with status code 401
-      throw new Error("Invalid credentials!");
+      return res.status(400).json({
+        success: false,
+        message: "Username and password are required!"
+      });
     }
 
-    // Creating JWT token. The token will contain the username and will be signed with the secret key
+    // Find user by username (case-insensitive)
+    const user = await User.findOne({ 
+      username: username.toLowerCase().trim() 
+    });
+
+    // Verify user exists and password is correct
+    if (!user || !bcrypt.compareSync(password, user.password)) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials!"
+      });
+    }
+
+    // Generate JWT token with user information
     const token = jwt.sign(
-      { username: user.username },
+      { 
+        username: user.username,
+        userId: user._id,
+        role: user.role 
+      },
       process.env.JWT_SECRET_KEY,
       { expiresIn: "1h" }
     );
 
-    // Sending the token in the response
+    // Return success response with token
     res.status(200).json({
+      success: true,
       message: "Login successful!",
       token,
+      user: {
+        username: user.username,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName
+      }
     });
-  } catch (err) {
-    // If there is an error while logging in, we will send a 500 status code
-    res.status(401).json({
-      message: err.message,
+
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error during login"
     });
   }
 };
 
+/**
+ * User Registration Handler
+ * 
+ * Creates a new user account with validated input data.
+ * Performs comprehensive validation including duplicate checks,
+ * password hashing, and role validation.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success or error message
+ */
 const signup = async (req, res) => {
-  const { username, password, role, firstName, lastName, email, gender } =
-    req.body;
+  const { username, password, role, firstName, lastName, email, gender } = req.body;
 
   try {
-    // Validate the input data
-    if (
-      !username ||
-      !password ||
-      !role ||
-      !firstName ||
-      !lastName ||
-      !email ||
-      !gender
-    ) {
-      throw new Error("All fields are required!");
+    // Comprehensive input validation
+    if (!username || !password || !role || !firstName || !lastName || !email || !gender) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required!"
+      });
     }
+
+    // Validate role
     if (role !== "user" && role !== "admin") {
-      throw new Error("Role must be either user or admin");
-    }
-    if (gender != "male" && gender != "female") {
-      throw new Error("Gender must be either male or female!");
+      return res.status(400).json({
+        success: false,
+        message: "Role must be either 'user' or 'admin'"
+      });
     }
 
-    // Check if the user already exists
+    // Validate gender
+    if (gender !== "male" && gender !== "female") {
+      return res.status(400).json({
+        success: false,
+        message: "Gender must be either 'male' or 'female'"
+      });
+    }
+
+    // Validate email format (basic validation)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
+    }
+
+    // Validate password strength (minimum 6 characters)
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters long"
+      });
+    }
+
+    // Check for existing username (case-insensitive)
     const existingUser = await User.findOne({
-      username: username.toLowerCase(),
+      username: username.toLowerCase().trim()
     });
+    
     if (existingUser) {
-      throw new Error("User already exists!");
+      return res.status(409).json({
+        success: false,
+        message: "Username already exists!"
+      });
     }
 
-    const existingEmail = await User.findOne({ email: email.toLowerCase() });
+    // Check for existing email (case-insensitive)
+    const existingEmail = await User.findOne({ 
+      email: email.toLowerCase().trim() 
+    });
+    
     if (existingEmail) {
-      throw new Error("Email already in use!");
+      return res.status(409).json({
+        success: false,
+        message: "Email already in use!"
+      });
     }
 
-    // Hash the password before saving it to the database
-    const salt = bcrypt.genSaltSync(10);
-    const hashedPassword = bcrypt.hashSync(password, salt);
+    // Hash password with salt rounds
+    const saltRounds = 12;
+    const hashedPassword = bcrypt.hashSync(password, saltRounds);
 
-    // Create a new user instance and save it to the database
+    // Create new user instance
     const newUser = new User({
-      username: username.toLowerCase(),
+      username: username.toLowerCase().trim(),
       password: hashedPassword,
       role,
-      createdAt: new Date(),
-      firstName,
-      lastName,
-      email: email?.toLowerCase(),
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.toLowerCase().trim(),
       gender,
+      createdAt: new Date(),
+      isActive: true
     });
 
+    // Save user to database
     await newUser.save();
-    res.status(200).json({
-      message: "User created successfully",
+
+    res.status(201).json({
+      success: true,
+      message: "User created successfully"
     });
-  } catch (err) {
-    console.error(err);
+
+  } catch (error) {
+    console.error("Signup error:", error);
     res.status(500).json({
-      message: err.message,
+      success: false,
+      message: "Internal server error during registration"
     });
   }
 };
 
+/**
+ * User Logout Handler
+ * 
+ * Invalidates the current JWT token by adding it to the blacklist.
+ * Ensures the token cannot be used for future requests.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success or error message
+ */
 const logout = async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
-    return res.status(401).json({ message: "No token provided" });
+    return res.status(401).json({ 
+      success: false,
+      message: "No token provided" 
+    });
   }
 
   try {
-    // Verify the token
-    jwt.verify(token, process.env.JWT_SECRET_KEY);
-    // If the token is valid, blacklist it by saving it to the database
-    // First extract the expiry time from the token
-    const decodedToken = jwt.decode(token);
+    // Verify token is valid before blacklisting
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    
     if (!decodedToken || !decodedToken.exp) {
-      throw new Error("Invalid token");
+      return res.status(401).json({ 
+        success: false,
+        message: "Invalid token format" 
+      });
     }
-    // Create a new BlacklistedToken instance
-    // and save it to the database with an expiry time of 1 hour
-    const expiresAt = new Date(decodedToken.exp * 1000); // Convert seconds to milliseconds
-    if (expiresAt < new Date()) {
-      throw new Error("Token has already expired");
+
+    // Check if token has already expired
+    const currentTime = Math.floor(Date.now() / 1000);
+    if (decodedToken.exp < currentTime) {
+      return res.status(401).json({ 
+        success: false,
+        message: "Token has already expired" 
+      });
     }
+
+    // Create blacklisted token entry
+    const expiresAt = new Date(decodedToken.exp * 1000);
     const blacklistedToken = new BlacklistedToken({
       token,
       expiresAt: expiresAt,
+      blacklistedAt: new Date()
     });
+
     await blacklistedToken.save();
 
-    res.status(200).json({ message: "Logout successful" });
-  } catch (err) {
-    res.status(401).json({ message: err.message });
+    res.status(200).json({ 
+      success: true,
+      message: "Logout successful" 
+    });
+
+  } catch (error) {
+    console.error("Logout error:", error);
+    
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ 
+        success: false,
+        message: "Invalid token" 
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false,
+      message: "Internal server error during logout" 
+    });
   }
-  
 };
 
-const checkToken = async (req, res, next) => {
+/**
+ * Token Validation Handler
+ * 
+ * Validates JWT token by checking if it's blacklisted and verifying
+ * its signature and expiration. Used for protecting routes.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with validation result
+ */
+const checkToken = async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
-    return res.status(401).json({ message: "No token provided" });
+    return res.status(401).json({ 
+      success: false,
+      message: "No token provided" 
+    });
   }
 
   try {
-    // Check if the token is blacklisted
+    // Check if token is blacklisted
     const blacklistedToken = await BlacklistedToken.findOne({ token });
     if (blacklistedToken) {
-      throw new Error("Access denied. Token is blacklisted.");
+      return res.status(401).json({ 
+        success: false,
+        message: "Access denied. Token is blacklisted." 
+      });
     }
 
-    // Verify the token
-    jwt.verify(token, process.env.JWT_SECRET_KEY);
+    // Verify token signature and expiration
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    
+    res.status(200).json({ 
+      success: true,
+      message: "Token is valid",
+      user: {
+        username: decodedToken.username,
+        userId: decodedToken.userId,
+        role: decodedToken.role
+      }
+    });
 
-    res.status(200).json({ message: "Token is valid" });
-  } catch (err) {
-    res.status(401).json({ message: err.message });
+  } catch (error) {
+    console.error("Token validation error:", error);
+    
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ 
+        success: false,
+        message: "Invalid token" 
+      });
+    }
+    
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ 
+        success: false,
+        message: "Token has expired" 
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false,
+      message: "Internal server error during token validation" 
+    });
   }
 };
 

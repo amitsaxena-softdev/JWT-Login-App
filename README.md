@@ -1,133 +1,318 @@
-# 🔐 JWT Login App
+# JWT Login App
 
-A full-stack web application demonstrating modern authentication and role-based access control using **JWT (JSON Web Tokens)**. The app includes user signup, login, profile management, and an admin panel with the ability to manage users.
+A modern, secure authentication system built with React, Node.js, and MongoDB. Features JWT-based authentication, role-based access control, and a responsive Material-UI interface.
 
-![App Screenshot](https://github.com/amitsaxena-softdev/JWT-Login-App/blob/909981db9fde9d9063194b75a15f7c18809e459a/client/public/JWT%20Screenshot.png)
-
----
+![JWT Login App Screenshot](client/public/JWT Screenshot.png)
 
 ## 🚀 Features
-- ✅ Secure user authentication using JWT
-- ✅ Role-based access: User vs. Admin
-- ✅ Admin dashboard with user listing and delete actions
-- ✅ Profile page with user info
-- ✅ Modern UI with Material UI v6 and responsive layout
-- ✅ Theme customization and dark mode support
 
----
+### Authentication & Security
+- **JWT Token Authentication** with secure token validation
+- **Password Hashing** using bcrypt with 12 salt rounds
+- **Token Blacklisting** for secure logout functionality
+- **Client & Server-side Token Validation**
+- **Session & Local Storage** token management
+- **CORS Protection** with configurable origins
 
-## 🖼️ Tech Stack
+### User Management
+- **User Registration** with comprehensive validation
+- **Role-based Access Control** (User/Admin)
+- **Profile Management** with user information display
+- **Account Deletion** with confirmation dialogs
+- **Admin Panel** for user management (admin users only)
 
-| Layer     | Technology                |
-|-----------|---------------------------|
-| Frontend  | React (Vite) + TypeScript |
-| UI        | Material UI (v6)          |
-| Backend   | Node.js + Express.js      |
-| Auth      | JWT (jsonwebtoken)        |
-| Database  | MongoDB (via Mongoose)    |
+### Frontend Features
+- **Responsive Design** with Material-UI components
+- **Dark/Light Theme** support
+- **Tab-based Navigation** for different sections
+- **Loading States** and error handling
+- **Snackbar Notifications** for user feedback
+- **Form Validation** with real-time feedback
 
----
+### Backend Features
+- **RESTful API** with proper HTTP status codes
+- **Input Validation** and sanitization
+- **Error Handling** with detailed error messages
+- **Database Connection** monitoring
+- **Health Check Endpoint** for monitoring
+- **Security Headers** implementation
 
-## 📦 Installation
+## 📁 Project Structure
+
+```
+JWT-Login-App/
+├── client/                          # React Frontend
+│   ├── src/
+│   │   ├── Dashboard/               # Dashboard components
+│   │   │   ├── Components/          # Dashboard sub-components
+│   │   │   │   ├── AdminPanel.tsx   # Admin user management
+│   │   │   │   └── UserInfo.tsx     # User profile display
+│   │   │   └── Dashboard.tsx        # Main dashboard component
+│   │   ├── SignIn/                  # Authentication components
+│   │   │   ├── components/          # Sign-in sub-components
+│   │   │   │   ├── Content.tsx      # Landing page content
+│   │   │   │   ├── SignInCard.tsx   # Login form
+│   │   │   │   ├── SignUpCard.tsx   # Registration form
+│   │   │   │   └── ForgetPassword.tsx
+│   │   │   └── SignInSide.tsx       # Main auth interface
+│   │   ├── shared-theme/            # Shared UI components
+│   │   │   ├── AppDialog.tsx        # Reusable dialog component
+│   │   │   ├── AppLayout.tsx        # Main layout wrapper
+│   │   │   ├── AppTheme.tsx         # Theme configuration
+│   │   │   └── TranparentAppBar.tsx # Navigation bar
+│   │   ├── types/                   # TypeScript type definitions
+│   │   │   └── User.ts              # User data types
+│   │   ├── utils/                   # Utility functions
+│   │   │   ├── SnackbarContext.tsx  # Notification context
+│   │   │   └── validateFormFields.ts
+│   │   └── main.jsx                 # Application entry point
+│   └── package.json
+├── server/                          # Node.js Backend
+│   ├── Controllers/                 # Business logic handlers
+│   │   ├── authController.js        # Authentication logic
+│   │   ├── userController.js        # User management logic
+│   │   └── adminController.js       # Admin operations logic
+│   ├── Models/                      # Database models
+│   │   ├── userModel.js             # User schema
+│   │   └── BlacklistedToken.js      # Token blacklist schema
+│   ├── Routers/                     # API route definitions
+│   │   ├── authRouter.js            # Authentication routes
+│   │   ├── userRouter.js            # User management routes
+│   │   └── adminRouter.js           # Admin routes
+│   ├── server.js                    # Server entry point
+│   └── package.json
+└── README.md
+```
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **React 18** - UI framework
+- **Material-UI (MUI)** - Component library
+- **React Router** - Client-side routing
+- **Vite** - Build tool and dev server
+- **TypeScript** - Type safety (partial)
+
+### Backend
+- **Node.js** - Runtime environment
+- **Express.js** - Web framework
+- **MongoDB** - Database
+- **Mongoose** - ODM for MongoDB
+- **JWT** - Token-based authentication
+- **bcrypt** - Password hashing
+- **CORS** - Cross-origin resource sharing
+
+## 🚀 Getting Started
 
 ### Prerequisites
+- Node.js (v16 or higher)
+- MongoDB (local or cloud instance)
+- npm or yarn package manager
 
-- Node.js ≥ 18.x
-- MongoDB (local or Atlas)
-- Yarn or npm
+### Installation
 
----
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd JWT-Login-App
+   ```
 
-## 🛠️ Setup Instructions
+2. **Set up environment variables**
+   Create a `.env` file in the root directory:
+   ```env
+   MONGO_URI=mongodb://localhost:27017/jwt-login-app
+   PORT=3001
+   JWT_SECRET_KEY=your-super-secret-jwt-key
+   CLIENT_URL=http://localhost:5173
+   NODE_ENV=development
+   ```
 
-### 1. Clone the Repository
+3. **Install dependencies**
+   ```bash
+   # Install server dependencies
+   cd server
+   npm install
 
-```bash
-git clone https://github.com/amitsaxena-softdev/JWT-Login-App.git
-cd jwt-login-app
+   # Install client dependencies
+   cd ../client
+   npm install
+   ```
+
+4. **Start the development servers**
+   ```bash
+   # Start backend server (from server directory)
+   npm start
+
+   # Start frontend dev server (from client directory)
+   npm run dev
+   ```
+
+5. **Access the application**
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:3001
+   - Health Check: http://localhost:3001/health
+
+## 📚 API Documentation
+
+### Authentication Endpoints
+
+#### POST `/auth/login`
+User login endpoint.
+```json
+{
+  "username": "user@example.com",
+  "password": "password123"
+}
 ```
 
-### 2. Backend Setup
-
-First, login in to your MongoDB Atlas Account, and copy your MongoDB URI.
-
-Then to create your own secret JWT key, go to the terminal and type:
-```bash
-node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+#### POST `/auth/signup`
+User registration endpoint.
+```json
+{
+  "username": "newuser",
+  "password": "password123",
+  "role": "user",
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "gender": "male"
+}
 ```
-Then copy the template from .env.example to .env from terminal:
-```bash
-cp .env.example .env
+
+#### POST `/auth/logout`
+User logout endpoint (requires Authorization header).
+
+#### GET `/auth/checkToken`
+Token validation endpoint (requires Authorization header).
+
+### User Endpoints
+
+#### GET `/user/profile`
+Get user profile (requires Authorization header).
+
+#### DELETE `/user/deleteUser`
+Delete user account (requires Authorization header).
+
+### Admin Endpoints
+
+#### GET `/admin/getAllUsers`
+Get all users (admin only, requires Authorization header).
+
+#### DELETE `/admin/deleteUserByAdmin`
+Delete user by admin (admin only, requires Authorization header).
+```json
+{
+  "userId": "user-id-to-delete"
+}
 ```
-Edit the .env file and fill in:
+
+## 🔒 Security Features
+
+### Authentication Security
+- **JWT Tokens** with 1-hour expiration
+- **Token Blacklisting** for secure logout
+- **Password Hashing** with bcrypt (12 salt rounds)
+- **Input Validation** and sanitization
+- **CORS Protection** with configurable origins
+
+### Data Protection
+- **No Sensitive Data** in JWT payloads
+- **Secure Headers** (XSS, CSRF protection)
+- **Request Size Limits** (10MB max)
+- **Error Message Sanitization** in production
+
+### Best Practices
+- **Environment Variables** for configuration
+- **Proper HTTP Status Codes**
+- **Comprehensive Error Handling**
+- **Input Validation** on both client and server
+- **Database Connection Monitoring**
+
+## 🎨 UI/UX Features
+
+### Responsive Design
+- **Mobile-first** approach
+- **Breakpoint-based** layouts
+- **Flexible Grid System**
+
+### Theme Support
+- **Dark/Light Mode** toggle
+- **Custom Color Palette**
+- **Consistent Typography**
+
+### User Experience
+- **Loading States** for async operations
+- **Error Handling** with user-friendly messages
+- **Form Validation** with real-time feedback
+- **Confirmation Dialogs** for destructive actions
+
+## 🧪 Development Guidelines
+
+### Code Structure
+- **Component-based** architecture
+- **Separation of Concerns** (MVC pattern)
+- **Modular File Organization**
+- **Consistent Naming Conventions**
+
+### Code Quality
+- **Comprehensive Comments** and documentation
+- **Type Safety** (TypeScript interfaces)
+- **Error Handling** at all levels
+- **Consistent Code Formatting**
+
+### Testing
+- **API Testing** with REST client
+- **Manual Testing** workflows
+- **Error Scenario** testing
+
+## 🚀 Deployment
+
+### Frontend Deployment
 ```bash
-PORT=3001
-MONGO_URI=Your_MongoDB_URI
-JWT_SECRET=yourSecretKeyHere
-````
-Then install and run the server:
+cd client
+npm run build
+# Deploy dist/ folder to your hosting service
+```
+
+### Backend Deployment
 ```bash
 cd server
-npm install
-npm run dev
+npm install --production
+# Set NODE_ENV=production
+# Deploy to your hosting service
 ```
-### 3. Frontend Setup
-```bash
-cd ../client
-npm install
-npm run dev
-````
-Now open the app in your browser:
-http://localhost:5173
 
----
-
-# 📁 Project Structure
-```bash
-client/                        # React frontend (Vite + MUI)
-│
-└───src/
-    ├───components/            # Reusable UI components
-    ├───Dashboard/             # Dashboard view & logic
-    ├───shared-theme/          # Global MUI theme customization
-    ├───SignIn/                # Login & SignUp views
-    ├───types/                 # Shared TypeScript interfaces & types
-    └───utils/                 # Utility functions (e.g., form validation)
-
-server/                        # Express backend (JWT Auth + MongoDB)
-├───Controllers/               # Business logic for each route
-├───Routers/                   # Route definitions and endpoints
-├───Models/                    # Mongoose models / schemas
-└───server.js                  # Entry point of the backend app
-
-.env.example                   # Template for required environment variables
+### Environment Variables for Production
+```env
+MONGO_URI=your-production-mongodb-uri
+PORT=3001
+JWT_SECRET_KEY=your-production-secret-key
+CLIENT_URL=https://your-frontend-domain.com
+NODE_ENV=production
 ```
-# 🔐 User Roles
-* **User:** Can view own profile, delete own account
 
-* **Admin:** Can view all users, delete any user via admin panel
+## 🤝 Contributing
 
-# 🧪 API Endpoints
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-| Method | Endpoint                   | Description                    |
-| ------ | -------------------------- | ------------------------------ |
-| POST   | `/auth/signup`             | Register new user              |
-| POST   | `/auth/login`              | Authenticate and receive token |
-| GET    | `/user/profile`            | Fetch current user profile     |
-| DELETE | `/user/deleteUser`         | Delete own account             |
-| GET    | `/admin/getAllUsers`       | Admin fetches all users        |
-| DELETE | `/admin/deleteUserByAdmin` | Admin deletes any user         |
+## 📝 License
 
-# 📌 To-Do / Future Improvements
-- [ ] Password reset functionality
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-- [ ] Email verification system
+## 🆘 Support
 
-- [ ] Pagination/filtering in admin panel
+For support and questions:
+- Create an issue in the repository
+- Check the API documentation
+- Review the code comments for implementation details
 
-- [ ] Audit logging for user actions
+## 🔄 Version History
 
-- [ ] Responsive improvements for mobile
-
-# 🤝 Contributing
-Pull requests are welcome! For major changes, please open an issue first to discuss what you want to change.
+- **v1.0.0** - Initial release with basic authentication
+- **v1.1.0** - Added admin panel and user management
+- **v1.2.0** - Improved code structure and documentation
+- **v1.3.0** - Enhanced security features and error handling
