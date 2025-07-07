@@ -39,23 +39,25 @@ A modern, secure authentication system built with React, Node.js, and MongoDB. F
 
 ## 📁 Project Structure
 
-| Directory | Description |
-|-----------|-------------|
-| **`client/`** | React Frontend Application |
-| `├── src/` | Source code |
-| `│ ├── Dashboard/` | Dashboard components and user management |
-| `│ ├── SignIn/` | Authentication components (login/signup) |
-| `│ ├── shared-theme/` | Reusable UI components and theme |
-| `│ ├── types/` | TypeScript type definitions |
-| `│ ├── utils/` | Utility functions and hooks |
-| `│ └── main.jsx` | Application entry point |
-| `└── package.json` | Frontend dependencies |
-| **`server/`** | Node.js Backend API |
-| `├── Controllers/` | Business logic handlers |
-| `├── Models/` | Database schemas and models |
-| `├── Routers/` | API route definitions |
-| `├── server.js` | Server entry point |
-| `└── package.json` | Backend dependencies |
+```
+JWT-Login-App/
+├── client/                          # React Frontend
+│   ├── src/
+│   │   ├── Dashboard/               # Dashboard components
+│   │   ├── SignIn/                  # Authentication components
+│   │   ├── shared-theme/            # Shared UI components
+│   │   ├── types/                   # TypeScript definitions
+│   │   ├── utils/                   # Utility functions
+│   │   └── main.jsx                 # App entry point
+│   └── package.json
+├── server/                          # Node.js Backend
+│   ├── Controllers/                 # Business logic
+│   ├── Models/                      # Database models
+│   ├── Routers/                     # API routes
+│   ├── server.js                    # Server entry point
+│   └── package.json
+└── README.md
+```
 
 ## 🛠️ Technology Stack
 
