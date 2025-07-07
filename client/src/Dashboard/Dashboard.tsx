@@ -67,30 +67,13 @@ const Dashboard: React.FC = () => {
   const [userLoading, setUserLoading] = useState(true);
   const [userData, setUserData] = useState<UserData | null>(null);
 
-  // Fetch user profile data
+  // Set user data from AuthContext
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        setUserLoading(true);
-        const response = await userApi.getProfile();
-        if (response.success && response.data) {
-          setUserData(response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-        showSnackbar({
-          message: "Failed to load user profile",
-          severity: "error",
-        });
-      } finally {
-        setUserLoading(false);
-      }
-    };
-
     if (user) {
-      fetchUserProfile();
+      setUserData(user);
+      setUserLoading(false);
     }
-  }, [user, showSnackbar]);
+  }, [user]);
 
   // Fetch all users for admin panel
   useEffect(() => {
@@ -290,14 +273,7 @@ const Dashboard: React.FC = () => {
                   </Typography>
                 </Box>
               </Box>
-              <Stack direction="row" spacing={1}>
-                <Button variant="contained" sx={{ bgcolor: 'white', color: 'primary.main' }}>
-                  View Profile
-                </Button>
-                <Button variant="outlined" sx={{ color: 'white', borderColor: 'white' }}>
-                  Settings
-                </Button>
-              </Stack>
+
             </Box>
           </CardContent>
         </Card>

@@ -1,258 +1,207 @@
-import React from "react";
+/**
+ * FormField Component
+ * 
+ * Universal form field component that renders different input types
+ * with consistent styling, validation, and accessibility features.
+ * Supports text, email, password, radio, and checkbox input types.
+ */
+
+import React from 'react';
 import {
   TextField,
   FormControl,
   FormLabel,
-  FormHelperText,
-  RadioGroup,
   FormControlLabel,
   Radio,
+  RadioGroup,
   Checkbox,
+  FormHelperText,
+  InputAdornment,
+  IconButton,
   Box,
-} from "@mui/material";
+} from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 /**
- * Form field types supported by the component
- */
-export type FieldType = 
-  | 'text' 
-  | 'email' 
-  | 'password' 
-  | 'number' 
-  | 'tel' 
-  | 'url'
-  | 'radio'
-  | 'checkbox'
-  | 'textarea';
-
-/**
- * Radio option interface
+ * Radio option interface for radio button groups
  */
 export interface RadioOption {
   value: string;
   label: string;
+  disabled?: boolean;
 }
 
 /**
  * FormField component props
  */
-export interface FormFieldProps {
-  /** Field type */
-  type: FieldType;
-  /** Field name (used for form data) */
+interface FormFieldProps {
+  /** Input type */
+  type: 'text' | 'email' | 'password' | 'radio' | 'checkbox';
+  /** Field name for form handling */
   name: string;
   /** Field label */
   label: string;
   /** Field placeholder text */
   placeholder?: string;
-  /** Whether the field is required */
+  /** Whether field is required */
   required?: boolean;
-  /** Whether the field has an error */
-  error?: boolean;
-  /** Error message to display */
-  errorMessage?: string;
-  /** Helper text to display */
-  helperText?: string;
-  /** Field value (controlled component) */
+  /** Field value */
   value?: string | boolean;
-  /** Change handler (controlled component) */
+  /** Change handler */
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  /** Default value (uncontrolled component) */
-  defaultValue?: string;
-  /** Whether the field is disabled */
-  disabled?: boolean;
-  /** Whether the field should auto-focus */
-  autoFocus?: boolean;
+  /** Error state */
+  error?: boolean;
+  /** Error message */
+  errorMessage?: string;
   /** Auto-complete attribute */
   autoComplete?: string;
-  /** Additional CSS classes */
-  className?: string;
-  /** Custom styles */
+  /** Auto-focus on mount */
+  autoFocus?: boolean;
+  /** Radio options for radio type */
+  options?: RadioOption[];
+  /** Checkbox label */
+  checkboxLabel?: string;
+  /** Additional styling */
   sx?: any;
-  /** For radio fields: available options */
-  radioOptions?: RadioOption[];
-  /** For textarea: number of rows */
-  rows?: number;
-  /** For textarea: number of columns */
-  cols?: number;
-  /** Full width styling */
-  fullWidth?: boolean;
-  /** Field size */
-  size?: 'small' | 'medium';
-  /** Color variant */
-  color?: 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
 }
 
 /**
- * Reusable Form Field Component
+ * FormField Component
  * 
- * A standardized form field component that handles different input types
- * with consistent styling, validation, and error handling.
- * Supports both controlled and uncontrolled modes.
+ * Renders form fields with consistent styling and validation.
+ * Supports multiple input types with appropriate Material-UI components.
  * 
- * @param props - FormField component props
+ * @param props - Component properties
  * @returns JSX element
  */
-export const FormField: React.FC<FormFieldProps> = ({
+const FormField: React.FC<FormFieldProps> = ({
   type,
   name,
   label,
   placeholder,
   required = false,
-  error = false,
-  errorMessage,
-  helperText,
   value,
   onChange,
-  defaultValue,
-  disabled = false,
-  autoFocus = false,
+  error = false,
+  errorMessage = '',
   autoComplete,
-  className,
+  autoFocus = false,
+  options = [],
+  checkboxLabel,
   sx,
-  radioOptions = [],
-  rows = 4,
-  cols = 20,
-  fullWidth = true,
-  size = 'medium',
-  color = 'primary',
 }) => {
-  // Determine the color to use based on error state
-  const fieldColor = error ? 'error' : color;
+  const [showPassword, setShowPassword] = React.useState(false);
 
-  // Render radio group
-  if (type === 'radio') {
-    return (
-      <FormControl 
-        error={error} 
-        required={required}
-        disabled={disabled}
-        fullWidth={fullWidth}
-        className={className}
-        sx={sx}
-      >
-        <FormLabel component="legend">{label}</FormLabel>
-        <RadioGroup
-          name={name}
-          value={value as string || defaultValue || ''}
-          onChange={onChange}
-          row
-        >
-          {radioOptions.map((option) => (
-            <FormControlLabel
-              key={option.value}
-              value={option.value}
-              control={<Radio color={fieldColor} />}
-              label={option.label}
-            />
-          ))}
-        </RadioGroup>
-        {(errorMessage || helperText) && (
-          <FormHelperText error={error}>
-            {errorMessage || helperText}
-          </FormHelperText>
-        )}
-      </FormControl>
-    );
-  }
+  /**
+   * Toggle password visibility
+   */
+  const handleTogglePassword = () => {
+    setShowPassword(!showPassword);
+  };
 
-  // Render checkbox
-  if (type === 'checkbox') {
-    return (
-      <FormControl 
-        error={error} 
-        required={required}
-        disabled={disabled}
-        fullWidth={fullWidth}
-        className={className}
-        sx={sx}
-      >
-        <FormControlLabel
-          control={
-            <Checkbox 
-              name={name}
-              color={fieldColor}
-              checked={value as boolean || defaultValue === 'true'}
-              onChange={onChange}
-            />
-          }
-          label={label}
-        />
-        {(errorMessage || helperText) && (
-          <FormHelperText error={error}>
-            {errorMessage || helperText}
-          </FormHelperText>
-        )}
-      </FormControl>
-    );
-  }
-
-  // Render textarea
-  if (type === 'textarea') {
-    return (
-      <FormControl 
-        error={error} 
-        required={required}
-        disabled={disabled}
-        fullWidth={fullWidth}
-        className={className}
-        sx={sx}
-      >
-        <FormLabel htmlFor={name}>{label}</FormLabel>
-        <TextField
-          id={name}
-          name={name}
-          multiline
-          rows={rows}
-          placeholder={placeholder}
-          value={value as string || defaultValue || ''}
-          onChange={onChange}
-          autoFocus={autoFocus}
-          disabled={disabled}
-          fullWidth={fullWidth}
-          size={size}
-          color={fieldColor}
-          error={error}
-          helperText={errorMessage || helperText}
-          className={className}
-          sx={sx}
-        />
-      </FormControl>
-    );
-  }
-
-  // Render standard text input
-  return (
-    <FormControl 
-      error={error} 
+  /**
+   * Render text-based inputs (text, email, password)
+   */
+  const renderTextInput = () => (
+    <TextField
+      type={type === 'password' && showPassword ? 'text' : type}
+      name={name}
+      label={label}
+      placeholder={placeholder}
+      value={value || ''}
+      onChange={onChange}
       required={required}
-      disabled={disabled}
-      fullWidth={fullWidth}
-      className={className}
+      error={error}
+      helperText={errorMessage}
+      autoComplete={autoComplete}
+      autoFocus={autoFocus}
+      fullWidth
+      variant="outlined"
       sx={sx}
-    >
-      <FormLabel htmlFor={name}>{label}</FormLabel>
-      <TextField
-        id={name}
+      InputProps={{
+        endAdornment: type === 'password' ? (
+          <InputAdornment position="end">
+            <IconButton
+              onClick={handleTogglePassword}
+              edge="end"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <VisibilityOff /> : <Visibility />}
+            </IconButton>
+          </InputAdornment>
+        ) : undefined,
+      }}
+    />
+  );
+
+  /**
+   * Render radio button group
+   */
+  const renderRadioGroup = () => (
+    <FormControl error={error} required={required} sx={sx}>
+      <FormLabel sx={{ mb: 1, fontWeight: 500 }}>{label}</FormLabel>
+      <RadioGroup
         name={name}
-        type={type}
-        placeholder={placeholder}
-        value={value as string || defaultValue || ''}
+        value={value || ''}
         onChange={onChange}
-        autoComplete={autoComplete}
-        autoFocus={autoFocus}
-        disabled={disabled}
-        required={required}
-        fullWidth={fullWidth}
-        size={size}
-        color={fieldColor}
-        error={error}
-        helperText={errorMessage || helperText}
-        className={className}
-        sx={sx}
-      />
+        row
+        sx={{ gap: 2 }}
+      >
+        {options.map((option) => (
+          <FormControlLabel
+            key={option.value}
+            value={option.value}
+            control={<Radio size="small" />}
+            label={option.label}
+            disabled={option.disabled}
+            sx={{ 
+              margin: 0,
+              '& .MuiFormControlLabel-label': {
+                fontSize: '0.875rem',
+              }
+            }}
+          />
+        ))}
+      </RadioGroup>
+      {error && <FormHelperText>{errorMessage}</FormHelperText>}
     </FormControl>
   );
+
+  /**
+   * Render checkbox
+   */
+  const renderCheckbox = () => (
+    <FormControl error={error} required={required} sx={sx}>
+      <FormControlLabel
+        control={
+          <Checkbox
+            name={name}
+            checked={value as boolean || false}
+            onChange={onChange}
+            size="small"
+          />
+        }
+        label={checkboxLabel || label}
+        sx={{ 
+          margin: 0,
+          '& .MuiFormControlLabel-label': {
+            fontSize: '0.875rem',
+          }
+        }}
+      />
+      {error && <FormHelperText>{errorMessage}</FormHelperText>}
+    </FormControl>
+  );
+
+  // Render appropriate input type
+  switch (type) {
+    case 'radio':
+      return renderRadioGroup();
+    case 'checkbox':
+      return renderCheckbox();
+    default:
+      return renderTextInput();
+  }
 };
 
 export default FormField; 

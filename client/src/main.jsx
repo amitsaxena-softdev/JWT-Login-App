@@ -45,30 +45,6 @@ function App() {
               )
             }
           />
-          
-          {/* Future routes for role-based access */}
-          {/* 
-          <Route
-            path="/admin"
-            element={
-              isAuthenticated ? (
-                <AdminDashboard />
-              ) : (
-                <SignInSide />
-              )
-            }
-          />
-          <Route
-            path="/user"
-            element={
-              isAuthenticated ? (
-                <UserDashboard />
-              ) : (
-                <SignInSide />
-              )
-            }
-          />
-          */}
         </Routes>
       </BrowserRouter>
     </AppLayout>

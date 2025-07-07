@@ -151,72 +151,71 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, loading }) => {
   };
 
   return (
-    <Grid container spacing={3}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       {/* Profile Header Card */}
-      <Grid item xs={12}>
-        <Card sx={{ boxShadow: 3, borderRadius: 2 }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-              {/* Profile Avatar */}
-              <Avatar
-                sx={{
-                  width: 100,
-                  height: 100,
-                  fontSize: '2rem',
-                  bgcolor: user.role === 'admin' ? 'error.main' : 'primary.main',
-                }}
-              >
-                {getInitials(user.firstName, user.lastName)}
-              </Avatar>
+      <Card sx={{ boxShadow: 3, borderRadius: 2 }}>
+        <CardContent>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+            {/* Profile Avatar */}
+            <Avatar
+              sx={{
+                width: 100,
+                height: 100,
+                fontSize: '2rem',
+                bgcolor: user.role === 'admin' ? 'error.main' : 'primary.main',
+              }}
+            >
+              {getInitials(user.firstName, user.lastName)}
+            </Avatar>
 
-              {/* User Info */}
-              <Box sx={{ flexGrow: 1 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-                  <Typography variant="h4" component="h1">
-                    {user.firstName} {user.lastName}
+            {/* User Info */}
+            <Box sx={{ flexGrow: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                <Typography variant="h4" component="h1">
+                  {user.firstName} {user.lastName}
+                </Typography>
+                {getRoleChip(user.role)}
+              </Box>
+              
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                @{user.username}
+              </Typography>
+
+              <Stack direction="row" spacing={2} alignItems="center">
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {getGenderIcon(user.gender)}
+                  <Typography variant="body2" color="text.secondary">
+                    {user.gender.charAt(0).toUpperCase() + user.gender.slice(1)}
                   </Typography>
-                  {getRoleChip(user.role)}
                 </Box>
                 
-                <Typography variant="h6" color="text.secondary" gutterBottom>
-                  @{user.username}
-                </Typography>
-
-                <Stack direction="row" spacing={2} alignItems="center">
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    {getGenderIcon(user.gender)}
-                    <Typography variant="body2" color="text.secondary">
-                      {user.gender.charAt(0).toUpperCase() + user.gender.slice(1)}
-                    </Typography>
-                  </Box>
-                  
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <AccessTime fontSize="small" color="action" />
-                    <Typography variant="body2" color="text.secondary">
-                      Member since {new Date(user.createdAt).toLocaleDateString()}
-                    </Typography>
-                  </Box>
-                </Stack>
-              </Box>
-
-              {/* Edit Button */}
-              <Tooltip title={editMode ? "Cancel editing" : "Edit profile"}>
-                <IconButton
-                  color={editMode ? "error" : "primary"}
-                  onClick={editMode ? handleCancel : handleEdit}
-                  sx={{ alignSelf: 'flex-start' }}
-                >
-                  {editMode ? <Cancel /> : <Edit />}
-                </IconButton>
-              </Tooltip>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <AccessTime fontSize="small" color="action" />
+                  <Typography variant="body2" color="text.secondary">
+                    Member since {new Date(user.createdAt).toLocaleDateString()}
+                  </Typography>
+                </Box>
+              </Stack>
             </Box>
-          </CardContent>
-        </Card>
-      </Grid>
 
-      {/* Contact Information Card */}
-      <Grid item xs={12} md={6}>
-        <Card sx={{ height: '100%', boxShadow: 2 }}>
+            {/* Edit Button */}
+            <Tooltip title={editMode ? "Cancel editing" : "Edit profile"}>
+              <IconButton
+                color={editMode ? "error" : "primary"}
+                onClick={editMode ? handleCancel : handleEdit}
+                sx={{ alignSelf: 'flex-start' }}
+              >
+                {editMode ? <Cancel /> : <Edit />}
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </CardContent>
+      </Card>
+
+      {/* Two Column Layout for Cards */}
+      <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+        {/* Contact Information Card */}
+        <Card sx={{ flex: '1 1 400px', minWidth: 0, boxShadow: 2, display: 'flex', flexDirection: 'column' }}>
           <CardHeader
             title="Contact Information"
             avatar={<Email color="primary" />}
@@ -230,7 +229,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, loading }) => {
               )
             }
           />
-          <CardContent>
+          <CardContent sx={{ flexGrow: 1 }}>
             <List dense>
               <ListItem>
                 <ListItemIcon>
@@ -301,16 +300,14 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, loading }) => {
             </List>
           </CardContent>
         </Card>
-      </Grid>
 
-      {/* Personal Information Card */}
-      <Grid item xs={12} md={6}>
-        <Card sx={{ height: '100%', boxShadow: 2 }}>
+        {/* Personal Information Card */}
+        <Card sx={{ flex: '1 1 400px', minWidth: 0, boxShadow: 2, display: 'flex', flexDirection: 'column' }}>
           <CardHeader
             title="Personal Information"
             avatar={<Person color="primary" />}
           />
-          <CardContent>
+          <CardContent sx={{ flexGrow: 1 }}>
             <List dense>
               <ListItem>
                 <ListItemIcon>
@@ -380,43 +377,42 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, loading }) => {
             </List>
           </CardContent>
         </Card>
-      </Grid>
+      </Box>
 
       {/* About Me Card */}
-      <Grid item xs={12}>
-        <Card sx={{ boxShadow: 2 }}>
-          <CardHeader
-            title="About Me"
-            avatar={<Description color="primary" />}
-          />
-          <CardContent>
-            {editMode ? (
-              <TextField
-                fullWidth
-                multiline
-                rows={4}
-                value={editData.aboutUser}
-                onChange={(e) => setEditData({ ...editData, aboutUser: e.target.value })}
-                variant="outlined"
-                placeholder="Tell us about yourself..."
-              />
-            ) : (
-              <Typography variant="body1" color="text.secondary">
-                {user.aboutUser || 'No information provided yet.'}
-              </Typography>
-            )}
-          </CardContent>
-        </Card>
-      </Grid>
+      <Card sx={{ boxShadow: 2 }}>
+        <CardHeader
+          title="About Me"
+          avatar={<Description color="primary" />}
+        />
+        <CardContent>
+          {editMode ? (
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              value={editData.aboutUser}
+              onChange={(e) => setEditData({ ...editData, aboutUser: e.target.value })}
+              variant="outlined"
+              placeholder="Tell us about yourself..."
+            />
+          ) : (
+            <Typography variant="body1" color="text.secondary">
+              {user.aboutUser || 'No information provided yet.'}
+            </Typography>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* Settings Card */}
-      <Grid item xs={12} md={6}>
-        <Card sx={{ boxShadow: 2 }}>
+      {/* Two Column Layout for Bottom Cards */}
+      <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+        {/* Settings Card */}
+        <Card sx={{ flex: '1 1 400px', minWidth: 0, boxShadow: 2, display: 'flex', flexDirection: 'column' }}>
           <CardHeader
             title="Account Settings"
             avatar={<Settings color="primary" />}
           />
-          <CardContent>
+          <CardContent sx={{ flexGrow: 1 }}>
             <List dense>
               <ListItem>
                 <ListItemIcon>
@@ -440,42 +436,36 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, loading }) => {
             </List>
           </CardContent>
         </Card>
-      </Grid>
 
-      {/* Account Statistics Card */}
-      <Grid item xs={12} md={6}>
-        <Card sx={{ boxShadow: 2 }}>
+        {/* Account Statistics Card */}
+        <Card sx={{ flex: '1 1 400px', minWidth: 0, boxShadow: 2, display: 'flex', flexDirection: 'column' }}>
           <CardHeader
             title="Account Statistics"
             avatar={<VerifiedUser color="primary" />}
           />
-          <CardContent>
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'primary.light' }}>
-                  <Typography variant="h4" color="white">
-                    {Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24))}
-                  </Typography>
-                  <Typography variant="body2" color="white">
-                    Days Active
-                  </Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={6}>
-                <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'secondary.light' }}>
-                  <Typography variant="h4" color="white">
-                    {user.role === 'admin' ? 'Admin' : 'User'}
-                  </Typography>
-                  <Typography variant="body2" color="white">
-                    Account Level
-                  </Typography>
-                </Paper>
-              </Grid>
-            </Grid>
+          <CardContent sx={{ flexGrow: 1 }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Paper sx={{ flex: 1, p: 2, textAlign: 'center', bgcolor: 'primary.light' }}>
+                <Typography variant="h4" color="white">
+                  {Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24))}
+                </Typography>
+                <Typography variant="body2" color="white">
+                  Days Active
+                </Typography>
+              </Paper>
+              <Paper sx={{ flex: 1, p: 2, textAlign: 'center', bgcolor: 'secondary.light' }}>
+                <Typography variant="h4" color="white">
+                  {user.role === 'admin' ? 'Admin' : 'User'}
+                </Typography>
+                <Typography variant="body2" color="white">
+                  Account Level
+                </Typography>
+              </Paper>
+            </Box>
           </CardContent>
         </Card>
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   );
 };
 

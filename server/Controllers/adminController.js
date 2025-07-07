@@ -3,34 +3,60 @@ const bcrypt = require("bcrypt");
 const User = require("../Models/userModel");
 const BlacklistedToken = require("../Models/BlacklistedToken");
 
+/**
+ * Admin Controller
+ * 
+ * Handles administrative operations including user management,
+ * user retrieval, and administrative actions. All endpoints require
+ * admin-level authentication and authorization.
+ */
+
+/**
+ * Get All Users Handler
+ * 
+ * Retrieves all users from the database for admin management.
+ * Requires admin role authentication and excludes password fields.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with users array or error message
+ */
 const getAllUsers = async (req, res) => {
   const token = req.headers["authorization"]?.split(" ")[1];
 
   try {
+    // Validate token presence
     if (!token) {
       throw new Error("Access denied. No token provided.");
     }
-    // Verify the token
+
+    // Check if token is blacklisted
     const blacklistedToken = await BlacklistedToken.findOne({ token });
     if (blacklistedToken) {
       throw new Error("Access denied. Token is blacklisted.");
     }
-    // Decode the token to get the username
+
+    // Verify token and extract user information
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const existingUser = await User.findOne({
       username: decoded.username.toLowerCase(),
     });
-    // Check if the user has admin role
+
+    // Verify admin role
     if (!existingUser || existingUser.role !== "admin") {
       throw new Error("Access forbidden. Admins only!");
     }
-    const users = await User.find({}).select("-password"); // Exclude password from the response
+
+    // Retrieve all users excluding password fields
+    const users = await User.find({}).select("-password");
+
     res.json({
       success: true,
       message: "Users fetched successfully",
-      users,
+      data: users,
       error: null,
-    }); // Exclude password from the response
+    });
+
   } catch (ex) {
     res.status(400).json({
       success: false,

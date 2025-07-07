@@ -115,32 +115,34 @@ export default function SignUpCard({ setSignIn }: SignUpCardProps) {
       >
         {/* Name Fields */}
         <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-          <FormField
-            type="text"
-            name="firstname"
-            label="First Name"
-            placeholder="Jon"
-            autoComplete="given-name"
-            required
-            value={formData.firstname}
-            onChange={handleFieldChange('firstname')}
-            error={getFieldError('firstname').error}
-            errorMessage={getFieldError('firstname').message}
-            fullWidth
-          />
-          <FormField
-            type="text"
-            name="lastname"
-            label="Last Name"
-            placeholder="Snow"
-            autoComplete="family-name"
-            required
-            value={formData.lastname}
-            onChange={handleFieldChange('lastname')}
-            error={getFieldError('lastname').error}
-            errorMessage={getFieldError('lastname').message}
-            fullWidth
-          />
+          <Box sx={{ flex: 1 }}>
+            <FormField
+              type="text"
+              name="firstname"
+              label="First Name"
+              placeholder="Jon"
+              autoComplete="given-name"
+              required
+              value={formData.firstname}
+              onChange={handleFieldChange('firstname')}
+              error={getFieldError('firstname').error}
+              errorMessage={getFieldError('firstname').message}
+            />
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <FormField
+              type="text"
+              name="lastname"
+              label="Last Name"
+              placeholder="Snow"
+              autoComplete="family-name"
+              required
+              value={formData.lastname}
+              onChange={handleFieldChange('lastname')}
+              error={getFieldError('lastname').error}
+              errorMessage={getFieldError('lastname').message}
+            />
+          </Box>
         </Box>
 
         {/* Username Field */}
@@ -190,7 +192,7 @@ export default function SignUpCard({ setSignIn }: SignUpCardProps) {
           type="radio"
           name="gender"
           label="Gender"
-          radioOptions={genderOptions}
+          options={genderOptions}
           required
           value={formData.gender}
           onChange={handleFieldChange('gender')}

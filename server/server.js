@@ -78,7 +78,7 @@ const setupMiddleware = () => {
   
   // Parse JSON request bodies
   app.use(express.json({ limit: '10mb' }));
-  
+
   // Parse URL-encoded request bodies
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
   
@@ -99,14 +99,14 @@ const setupMiddleware = () => {
  */
 const setupRoutes = () => {
   // Authentication routes
-  app.use("/auth", authRouter);
+    app.use("/auth", authRouter);
   
   // User management routes
-  app.use("/user", userRouter);
+    app.use("/user", userRouter);
   
   // Admin management routes
-  app.use("/admin", adminRouter);
-  
+    app.use("/admin", adminRouter);
+
   // Health check endpoint
   app.get("/health", (req, res) => {
     res.status(200).json({
@@ -118,7 +118,7 @@ const setupRoutes = () => {
   });
   
   // Root endpoint
-  app.get("/", (req, res) => {
+    app.get("/", (req, res) => {
     res.json({
       message: "Welcome to the JWT Login App Server!",
       version: "1.0.0",
@@ -129,7 +129,7 @@ const setupRoutes = () => {
         health: "/health"
       }
     });
-  });
+    });
   
   // 404 handler for undefined routes
   app.use("*", (req, res) => {

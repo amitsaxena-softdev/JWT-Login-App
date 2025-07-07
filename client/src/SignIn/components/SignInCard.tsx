@@ -104,25 +104,32 @@ export default function SignInCard({ setSignIn }: SignInCardProps) {
         />
         
         {/* Password Field */}
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-          <FormField
-            type="password"
-            name="password"
-            label="Password"
-            placeholder="••••••"
-            autoComplete="current-password"
-            required
-            value={formData.password}
-            onChange={handleFieldChange('password')}
-            error={getFieldError('password').error}
-            errorMessage={getFieldError('password').message}
-          />
+        <FormField
+          type="password"
+          name="password"
+          label="Password"
+          placeholder="••••••"
+          autoComplete="current-password"
+          required
+          value={formData.password}
+          onChange={handleFieldChange('password')}
+          error={getFieldError('password').error}
+          errorMessage={getFieldError('password').message}
+        />
+        
+        {/* Forgot Password Link */}
+        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
           <Link
             component="button"
             type="button"
             onClick={handleClickOpen}
             variant="body2"
-            sx={{ alignSelf: "baseline", ml: 1 }}
+            sx={{ 
+              textDecoration: "none",
+              "&:hover": {
+                textDecoration: "underline"
+              }
+            }}
           >
             Forgot your password?
           </Link>
