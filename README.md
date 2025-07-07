@@ -39,50 +39,23 @@ A modern, secure authentication system built with React, Node.js, and MongoDB. F
 
 ## 📁 Project Structure
 
-```
-JWT-Login-App/
-├── client/                          # React Frontend
-│   ├── src/
-│   │   ├── Dashboard/               # Dashboard components
-│   │   │   ├── Components/          # Dashboard sub-components
-│   │   │   │   ├── AdminPanel.tsx   # Admin user management
-│   │   │   │   └── UserInfo.tsx     # User profile display
-│   │   │   └── Dashboard.tsx        # Main dashboard component
-│   │   ├── SignIn/                  # Authentication components
-│   │   │   ├── components/          # Sign-in sub-components
-│   │   │   │   ├── Content.tsx      # Landing page content
-│   │   │   │   ├── SignInCard.tsx   # Login form
-│   │   │   │   ├── SignUpCard.tsx   # Registration form
-│   │   │   │   └── ForgetPassword.tsx
-│   │   │   └── SignInSide.tsx       # Main auth interface
-│   │   ├── shared-theme/            # Shared UI components
-│   │   │   ├── AppDialog.tsx        # Reusable dialog component
-│   │   │   ├── AppLayout.tsx        # Main layout wrapper
-│   │   │   ├── AppTheme.tsx         # Theme configuration
-│   │   │   └── TranparentAppBar.tsx # Navigation bar
-│   │   ├── types/                   # TypeScript type definitions
-│   │   │   └── User.ts              # User data types
-│   │   ├── utils/                   # Utility functions
-│   │   │   ├── SnackbarContext.tsx  # Notification context
-│   │   │   └── validateFormFields.ts
-│   │   └── main.jsx                 # Application entry point
-│   └── package.json
-├── server/                          # Node.js Backend
-│   ├── Controllers/                 # Business logic handlers
-│   │   ├── authController.js        # Authentication logic
-│   │   ├── userController.js        # User management logic
-│   │   └── adminController.js       # Admin operations logic
-│   ├── Models/                      # Database models
-│   │   ├── userModel.js             # User schema
-│   │   └── BlacklistedToken.js      # Token blacklist schema
-│   ├── Routers/                     # API route definitions
-│   │   ├── authRouter.js            # Authentication routes
-│   │   ├── userRouter.js            # User management routes
-│   │   └── adminRouter.js           # Admin routes
-│   ├── server.js                    # Server entry point
-│   └── package.json
-└── README.md
-```
+| Directory | Description |
+|-----------|-------------|
+| **`client/`** | React Frontend Application |
+| `├── src/` | Source code |
+| `│ ├── Dashboard/` | Dashboard components and user management |
+| `│ ├── SignIn/` | Authentication components (login/signup) |
+| `│ ├── shared-theme/` | Reusable UI components and theme |
+| `│ ├── types/` | TypeScript type definitions |
+| `│ ├── utils/` | Utility functions and hooks |
+| `│ └── main.jsx` | Application entry point |
+| `└── package.json` | Frontend dependencies |
+| **`server/`** | Node.js Backend API |
+| `├── Controllers/` | Business logic handlers |
+| `├── Models/` | Database schemas and models |
+| `├── Routers/` | API route definitions |
+| `├── server.js` | Server entry point |
+| `└── package.json` | Backend dependencies |
 
 ## 🛠️ Technology Stack
 
