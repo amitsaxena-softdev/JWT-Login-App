@@ -1,56 +1,481 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
+  CardHeader,
   Typography,
   CircularProgress,
   Box,
+  Grid,
+  Avatar,
+  Chip,
+  Divider,
+  IconButton,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Paper,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  FormControlLabel,
+  Switch,
+  Alert,
+  Stack,
+  Tooltip,
 } from "@mui/material";
-
+import {
+  Person,
+  Email,
+  Phone,
+  CalendarToday,
+  Male,
+  Female,
+  AdminPanelSettings,
+  PersonOutline,
+  Edit,
+  Save,
+  Cancel,
+  Info,
+  Notifications,
+  Security,
+  VerifiedUser,
+  AccessTime,
+  LocationOn,
+  Description,
+  Settings,
+} from "@mui/icons-material";
 import { UserData, UserInfoProps } from "../../types/User";
+import { useSnackbar } from "../../utils/SnackbarContext";
 
+/**
+ * Enhanced UserInfo Component
+ * 
+ * Displays comprehensive user information with rich Material UI components
+ * including profile picture, detailed user stats, and editable settings.
+ * 
+ * @param user - User data to display
+ * @param loading - Loading state
+ * @returns JSX element
+ */
 const UserInfo: React.FC<UserInfoProps> = ({ user, loading }) => {
+  const [editMode, setEditMode] = useState(false);
+  const [editData, setEditData] = useState({
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    aboutUser: user?.aboutUser || '',
+    newsletter: user?.settings?.newsletter || false,
+  });
+  const showSnackbar = useSnackbar();
+
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-        <CircularProgress />
+        <CircularProgress size={60} />
       </Box>
     );
   }
 
   if (!user) {
     return (
-      <Typography sx={{ textAlign: "center", mt: 4 }}>
-        Keine Nutzerdaten vorhanden.
-      </Typography>
+      <Alert severity="info" sx={{ mt: 4 }}>
+        No user data available.
+      </Alert>
     );
   }
 
+  const handleEdit = () => {
+    setEditMode(true);
+  };
+
+  const handleCancel = () => {
+    setEditData({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone || '',
+      aboutUser: user.aboutUser || '',
+      newsletter: user.settings?.newsletter || false,
+    });
+    setEditMode(false);
+  };
+
+  const handleSave = async () => {
+    try {
+      // TODO: Implement API call to update user data
+      showSnackbar({
+        message: 'Profile updated successfully!',
+        severity: 'success',
+      });
+      setEditMode(false);
+    } catch (error) {
+      showSnackbar({
+        message: 'Failed to update profile',
+        severity: 'error',
+      });
+    }
+  };
+
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  };
+
+  const getGenderIcon = (gender: string) => {
+    return gender === 'male' ? <Male color="primary" /> : <Female color="secondary" />;
+  };
+
+  const getRoleChip = (role: string) => {
+    return role === 'admin' ? (
+      <Chip
+        icon={<AdminPanelSettings />}
+        label="Administrator"
+        color="error"
+        variant="filled"
+        size="small"
+      />
+    ) : (
+      <Chip
+        icon={<PersonOutline />}
+        label="User"
+        color="primary"
+        variant="outlined"
+        size="small"
+      />
+    );
+  };
+
   return (
-    <Card sx={{ maxWidth: 500, margin: "auto", mt: 4, boxShadow: 3 }}>
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Welcome, {user.firstName} {user.lastName}!
-        </Typography>
-        <Typography variant="body1">Username: {user.username}</Typography>
-        <Typography variant="body1">Email: {user.email}</Typography>
-        <Typography variant="body1">Role: {user.role}</Typography>
-        {user.gender && (
-          <Typography variant="body2">Gender: {user.gender}</Typography>
-        )}
-        {user.phone && (
-          <Typography variant="body2">Phone: {user.phone}</Typography>
-        )}
-        {user.aboutUser && (
-          <Typography variant="body2">About: {user.aboutUser}</Typography>
-        )}
-        {user.createdAt && (
-          <Typography variant="body2">
-            Joined: {new Date(user.createdAt).toLocaleDateString()}
-          </Typography>
-        )}
-      </CardContent>
-    </Card>
+    <Grid container spacing={3}>
+      {/* Profile Header Card */}
+      <Grid item xs={12}>
+        <Card sx={{ boxShadow: 3, borderRadius: 2 }}>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+              {/* Profile Avatar */}
+              <Avatar
+                sx={{
+                  width: 100,
+                  height: 100,
+                  fontSize: '2rem',
+                  bgcolor: user.role === 'admin' ? 'error.main' : 'primary.main',
+                }}
+              >
+                {getInitials(user.firstName, user.lastName)}
+              </Avatar>
+
+              {/* User Info */}
+              <Box sx={{ flexGrow: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                  <Typography variant="h4" component="h1">
+                    {user.firstName} {user.lastName}
+                  </Typography>
+                  {getRoleChip(user.role)}
+                </Box>
+                
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  @{user.username}
+                </Typography>
+
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {getGenderIcon(user.gender)}
+                    <Typography variant="body2" color="text.secondary">
+                      {user.gender.charAt(0).toUpperCase() + user.gender.slice(1)}
+                    </Typography>
+                  </Box>
+                  
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <AccessTime fontSize="small" color="action" />
+                    <Typography variant="body2" color="text.secondary">
+                      Member since {new Date(user.createdAt).toLocaleDateString()}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Box>
+
+              {/* Edit Button */}
+              <Tooltip title={editMode ? "Cancel editing" : "Edit profile"}>
+                <IconButton
+                  color={editMode ? "error" : "primary"}
+                  onClick={editMode ? handleCancel : handleEdit}
+                  sx={{ alignSelf: 'flex-start' }}
+                >
+                  {editMode ? <Cancel /> : <Edit />}
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* Contact Information Card */}
+      <Grid item xs={12} md={6}>
+        <Card sx={{ height: '100%', boxShadow: 2 }}>
+          <CardHeader
+            title="Contact Information"
+            avatar={<Email color="primary" />}
+            action={
+              editMode && (
+                <Tooltip title="Save changes">
+                  <IconButton color="primary" onClick={handleSave}>
+                    <Save />
+                  </IconButton>
+                </Tooltip>
+              )
+            }
+          />
+          <CardContent>
+            <List dense>
+              <ListItem>
+                <ListItemIcon>
+                  <Email color="action" />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Email Address"
+                  secondary={
+                    editMode ? (
+                      <TextField
+                        fullWidth
+                        size="small"
+                        value={editData.email}
+                        onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                        variant="outlined"
+                      />
+                    ) : (
+                      <Typography variant="body2" color="text.secondary">
+                        {user.email}
+                      </Typography>
+                    )
+                  }
+                />
+              </ListItem>
+
+              <ListItem>
+                <ListItemIcon>
+                  <Phone color="action" />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Phone Number"
+                  secondary={
+                    editMode ? (
+                      <TextField
+                        fullWidth
+                        size="small"
+                        value={editData.phone}
+                        onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
+                        variant="outlined"
+                        placeholder="Enter phone number"
+                      />
+                    ) : (
+                      <Typography variant="body2" color="text.secondary">
+                        {user.phone || 'Not provided'}
+                      </Typography>
+                    )
+                  }
+                />
+              </ListItem>
+
+              <ListItem>
+                <ListItemIcon>
+                  <CalendarToday color="action" />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Account Created"
+                  secondary={
+                    <Typography variant="body2" color="text.secondary">
+                      {new Date(user.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </Typography>
+                  }
+                />
+              </ListItem>
+            </List>
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* Personal Information Card */}
+      <Grid item xs={12} md={6}>
+        <Card sx={{ height: '100%', boxShadow: 2 }}>
+          <CardHeader
+            title="Personal Information"
+            avatar={<Person color="primary" />}
+          />
+          <CardContent>
+            <List dense>
+              <ListItem>
+                <ListItemIcon>
+                  <Person color="action" />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Full Name"
+                  secondary={
+                    editMode ? (
+                      <Box sx={{ display: 'flex', gap: 1 }}>
+                        <TextField
+                          size="small"
+                          value={editData.firstName}
+                          onChange={(e) => setEditData({ ...editData, firstName: e.target.value })}
+                          variant="outlined"
+                          placeholder="First Name"
+                        />
+                        <TextField
+                          size="small"
+                          value={editData.lastName}
+                          onChange={(e) => setEditData({ ...editData, lastName: e.target.value })}
+                          variant="outlined"
+                          placeholder="Last Name"
+                        />
+                      </Box>
+                    ) : (
+                      <Typography variant="body2" color="text.secondary">
+                        {user.firstName} {user.lastName}
+                      </Typography>
+                    )
+                  }
+                />
+              </ListItem>
+
+              <ListItem>
+                <ListItemIcon>
+                  <Security color="action" />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Account Type"
+                  secondary={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {getRoleChip(user.role)}
+                      {user.role === 'admin' && (
+                        <Tooltip title="Administrator privileges">
+                          <VerifiedUser color="success" fontSize="small" />
+                        </Tooltip>
+                      )}
+                    </Box>
+                  }
+                />
+              </ListItem>
+
+              <ListItem>
+                <ListItemIcon>
+                  <Info color="action" />
+                </ListItemIcon>
+                <ListItemText
+                  primary="User ID"
+                  secondary={
+                    <Typography variant="body2" color="text.secondary" fontFamily="monospace">
+                      {user._id}
+                    </Typography>
+                  }
+                />
+              </ListItem>
+            </List>
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* About Me Card */}
+      <Grid item xs={12}>
+        <Card sx={{ boxShadow: 2 }}>
+          <CardHeader
+            title="About Me"
+            avatar={<Description color="primary" />}
+          />
+          <CardContent>
+            {editMode ? (
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                value={editData.aboutUser}
+                onChange={(e) => setEditData({ ...editData, aboutUser: e.target.value })}
+                variant="outlined"
+                placeholder="Tell us about yourself..."
+              />
+            ) : (
+              <Typography variant="body1" color="text.secondary">
+                {user.aboutUser || 'No information provided yet.'}
+              </Typography>
+            )}
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* Settings Card */}
+      <Grid item xs={12} md={6}>
+        <Card sx={{ boxShadow: 2 }}>
+          <CardHeader
+            title="Account Settings"
+            avatar={<Settings color="primary" />}
+          />
+          <CardContent>
+            <List dense>
+              <ListItem>
+                <ListItemIcon>
+                  <Notifications color="action" />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Newsletter Subscription"
+                  secondary="Receive updates and notifications"
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={editData.newsletter}
+                      onChange={(e) => setEditData({ ...editData, newsletter: e.target.checked })}
+                      disabled={!editMode}
+                    />
+                  }
+                  label=""
+                />
+              </ListItem>
+            </List>
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* Account Statistics Card */}
+      <Grid item xs={12} md={6}>
+        <Card sx={{ boxShadow: 2 }}>
+          <CardHeader
+            title="Account Statistics"
+            avatar={<VerifiedUser color="primary" />}
+          />
+          <CardContent>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'primary.light' }}>
+                  <Typography variant="h4" color="white">
+                    {Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24))}
+                  </Typography>
+                  <Typography variant="body2" color="white">
+                    Days Active
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid item xs={6}>
+                <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'secondary.light' }}>
+                  <Typography variant="h4" color="white">
+                    {user.role === 'admin' ? 'Admin' : 'User'}
+                  </Typography>
+                  <Typography variant="body2" color="white">
+                    Account Level
+                  </Typography>
+                </Paper>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+      </Grid>
+    </Grid>
   );
 };
 

@@ -2,19 +2,7 @@ import React, { useState } from "react";
 import Stack from "@mui/material/Stack";
 import SignInCard from "./components/SignInCard";
 import Content from "./components/Content";
-import SignUp from "./components/SignUpCard";
-
-/**
- * Props interface for SignInSide component
- */
-interface SignInSideProps {
-  /** Optional flag to disable custom theme */
-  disableCustomTheme?: boolean;
-  /** Optional flag to control initial sign-in state */
-  signIn?: boolean;
-  /** Callback function to update authentication state in parent component */
-  setIsAuthenticated?: (value: boolean) => void;
-}
+import SignUpCard from "./components/SignUpCard";
 
 /**
  * SignInSide Component
@@ -26,12 +14,11 @@ interface SignInSideProps {
  * - Toggle between sign-in and sign-up forms
  * - Responsive design for mobile and desktop
  * - Content section with app information
- * - Authentication state management
+ * - Authentication state management via AuthContext
  * 
- * @param props - Component props
  * @returns JSX element
  */
-export default function SignInSide(props: SignInSideProps) {
+export default function SignInSide() {
   // Local state to toggle between sign-in and sign-up forms
   const [signIn, setSignIn] = useState<boolean>(true);
 
@@ -62,15 +49,9 @@ export default function SignInSide(props: SignInSideProps) {
           
           {/* Conditional rendering of authentication forms */}
           {signIn ? (
-            <SignInCard
-              setIsAuthenticated={props.setIsAuthenticated ?? (() => {})}
-              setSignIn={setSignIn}
-            />
+            <SignInCard setSignIn={setSignIn} />
           ) : (
-            <SignUp
-              setSignIn={setSignIn}
-              setIsAuthenticated={props.setIsAuthenticated ?? (() => {})}
-            />
+            <SignUpCard setSignIn={setSignIn} />
           )}
         </Stack>
       </Stack>

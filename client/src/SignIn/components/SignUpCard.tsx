@@ -1,124 +1,104 @@
-import React, { useState } from "react";
+import React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import Divider from "@mui/material/Divider";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import FormLabel from "@mui/material/FormLabel";
-import FormControl from "@mui/material/FormControl";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormHelperText from "@mui/material/FormHelperText";
-import Radio from "@mui/material/Radio";
 import Link from "@mui/material/Link";
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-
 import {
   GoogleIcon,
   FacebookIcon,
 } from "../../shared-theme/customizations/CustomIcons";
-import { validateFields } from "../../utils/validateFormFields";
 import AuthCard from "../../shared-theme/customizations/AuthCard";
+import FormField, { RadioOption } from "../../shared-theme/components/FormField";
+import useForm from "../../utils/useForm";
+import { authApi } from "../../utils/api";
 import { useSnackbar } from "../../utils/SnackbarContext";
-import AppDialog from "../../shared-theme/AppDialog";
 
-export default function SignUp(props: {
-  disableCustomTheme?: boolean;
+/**
+ * SignUpCard Component Props
+ */
+interface SignUpCardProps {
   setSignIn: (signIn: boolean) => void;
-  setIsAuthenticated: (value: boolean) => void;
-}) {
-  const { setSignIn } = props;
-  const [emailError, setEmailError] = useState(false);
-  const [emaildialogMessage, setEmaildialogMessage] = useState("");
-  const [passwordError, setPasswordError] = useState(false);
-  const [passworddialogMessage, setPassworddialogMessage] = useState("");
-  const [firstNameError, setFirstNameError] = useState(false);
-  const [firstNamedialogMessage, setFirstNamedialogMessage] = useState("");
-  const [lastNameError, setLastNameError] = useState(false);
-  const [lastNamedialogMessage, setLastNamedialogMessage] = useState("");
-  const [usernameError, setUsernameError] = useState(false);
-  const [usernamedialogMessage, setUsernamedialogMessage] = useState("");
-  const [genderError, setGenderError] = useState(false);
-  const [genderErrorMessage, setGenderErrorMessage] = useState("");
+}
 
-  const [formDialogOpen, setFormDialogOpen] = useState(false);
-  const [dialogMessage, setDialogMessage] = useState("");
+/**
+ * Gender options for radio buttons
+ */
+const genderOptions: RadioOption[] = [
+  { value: 'male', label: 'Male' },
+  { value: 'female', label: 'Female' },
+];
 
+/**
+ * SignUpCard Component
+ * 
+ * Handles user registration with comprehensive form validation.
+ * Uses modular components and hooks for better code organization.
+ * 
+ * @param props - Component props
+ * @returns JSX element
+ */
+export default function SignUpCard({ setSignIn }: SignUpCardProps) {
   const showSnackbar = useSnackbar();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    // For demonstration, remove in production
-    event.preventDefault();
-    try {
-      // Validate inputs before proceeding
-      const formData = new FormData(event.currentTarget);
-      const fields = {
-        firstName: formData.get("firstName") as string,
-        lastName: formData.get("lastName") as string,
-        username: formData.get("username") as string,
-        email: formData.get("email") as string,
-        password: formData.get("password") as string,
-        gender: (
-          document.querySelector(
-            'input[name="gender"]:checked'
-          ) as HTMLInputElement
-        )?.value as string,
-        role: formData.get("admin") === "on" ? "admin" : "user",
-        allowExtraEmails: formData.has("allowExtraEmails"),
-      };
-
-      const { isValid, errors } = validateFields(fields);
-
-      // Reset error states
-      setUsernameError(errors.username?.error || false);
-      setUsernamedialogMessage(errors.username?.message || "");
-      setPasswordError(errors.password?.error || false);
-      setPassworddialogMessage(errors.password?.message || "");
-      setEmailError(errors.email?.error || false);
-      setEmaildialogMessage(errors.email?.message || "");
-      setFirstNameError(errors.firstName?.error || false);
-      setFirstNamedialogMessage(errors.firstName?.message || "");
-      setLastNameError(errors.lastName?.error || false);
-      setLastNamedialogMessage(errors.lastName?.message || "");
-      setGenderError(errors.gender?.error || false);
-      setGenderErrorMessage(errors.gender?.message || "");
-
-      // If any field is invalid, do not proceed with submission
-      if (!isValid) {
-        console.error("Form validation failed:", errors);
-        return;
-      }
-
-      console.log(JSON.stringify(fields));
-      // console.log(fields); // Only for demonstration, remove in production
-      // Proceed with form submission, e.g., send data to the server
-      const response = await fetch("http://localhost:3001/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(fields),
-      });
-      const result = await response.json();
-      if (response.ok) {
-        showSnackbar({
-          message: result.message || "User created successfully",
-          severity: "success",
+  // Form state management using custom hook
+  const {
+    formData,
+    errors,
+    isSubmitting,
+    handleSubmit,
+    getFieldError,
+    updateField,
+  } = useForm(
+    {
+      firstname: '',
+      lastname: '',
+      username: '',
+      email: '',
+      password: '',
+      gender: '',
+      role: 'user',
+      allowExtraEmails: false,
+    },
+    async (data) => {
+      try {
+        const response = await authApi.signup({
+          username: data.username,
+          password: data.password,
+          role: data.role,
+          firstName: data.firstname,
+          lastName: data.lastname,
+          email: data.email,
+          gender: data.gender,
         });
-        setSignIn(true);
-      } else {
-        showSnackbar({
-          message: result.message || "Something went wrong.",
-          severity: "error",
-        });
+
+        if (response.success) {
+          showSnackbar({
+            message: response.message || 'User created successfully',
+            severity: 'success',
+          });
+          setSignIn(true);
+        } else {
+          throw new Error(response.message || 'Registration failed');
+        }
+      } catch (error) {
+        console.error('Registration error:', error);
+        throw error;
       }
-    } catch (error) {
-      const msg = error.message || "Something went wrong.";
-      setDialogMessage(msg);
-      setFormDialogOpen(true);
     }
+  );
+
+  // Handle field changes
+  const handleFieldChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
+    updateField(field as keyof typeof formData, value);
   };
 
   return (
     <AuthCard variant="outlined">
+      {/* Title */}
       <Typography
         component="h1"
         variant="h4"
@@ -127,140 +107,135 @@ export default function SignUp(props: {
         Sign up
       </Typography>
 
+      {/* Registration Form */}
       <Box
         component="form"
         onSubmit={handleSubmit}
         sx={{ display: "flex", flexDirection: "column", gap: 2 }}
       >
+        {/* Name Fields */}
         <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-          <FormControl>
-            <FormLabel htmlFor="firstName">First Name</FormLabel>
-            <TextField
-              autoComplete="firstName"
-              name="firstName"
-              required
-              fullWidth
-              id="firstName"
-              placeholder="Jon"
-              error={firstNameError}
-              helperText={firstNamedialogMessage}
-              color={firstNameError ? "error" : "primary"}
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel htmlFor="lastName">Last Name</FormLabel>
-            <TextField
-              autoComplete="lastName"
-              name="lastName"
-              required
-              fullWidth
-              id="lastName"
-              placeholder="Snow"
-              error={lastNameError}
-              helperText={lastNamedialogMessage}
-              color={lastNameError ? "error" : "primary"}
-            />
-          </FormControl>
-        </Box>
-
-        <FormControl>
-          <FormLabel htmlFor="username">Username</FormLabel>
-          <TextField
-            autoComplete="username"
-            name="username"
+          <FormField
+            type="text"
+            name="firstname"
+            label="First Name"
+            placeholder="Jon"
+            autoComplete="given-name"
             required
+            value={formData.firstname}
+            onChange={handleFieldChange('firstname')}
+            error={getFieldError('firstname').error}
+            errorMessage={getFieldError('firstname').message}
             fullWidth
-            id="username"
-            placeholder="jonsnow123"
-            error={usernameError}
-            helperText={usernamedialogMessage}
-            color={usernameError ? "error" : "primary"}
           />
-        </FormControl>
-
-        <FormControl>
-          <FormLabel htmlFor="email">Email</FormLabel>
-          <TextField
+          <FormField
+            type="text"
+            name="lastname"
+            label="Last Name"
+            placeholder="Snow"
+            autoComplete="family-name"
             required
+            value={formData.lastname}
+            onChange={handleFieldChange('lastname')}
+            error={getFieldError('lastname').error}
+            errorMessage={getFieldError('lastname').message}
             fullWidth
-            id="email"
-            placeholder="your@email.com"
-            name="email"
-            autoComplete="email"
-            variant="outlined"
-            error={emailError}
-            helperText={emaildialogMessage}
-            color={passwordError ? "error" : "primary"}
-          />
-        </FormControl>
-
-        <FormControl>
-          <FormLabel htmlFor="password">Password</FormLabel>
-          <TextField
-            required
-            fullWidth
-            name="password"
-            placeholder="••••••"
-            type="password"
-            id="password"
-            autoComplete="new-password"
-            variant="outlined"
-            error={passwordError}
-            helperText={passworddialogMessage}
-            color={passwordError ? "error" : "primary"}
-          />
-        </FormControl>
-
-        <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-          <FormControl fullWidth error={genderError} required>
-            <FormLabel id="gender-label">Gender</FormLabel>
-            <RadioGroup row aria-labelledby="gender-label" name="gender">
-              <FormControlLabel value="male" control={<Radio />} label="Male" />
-              <FormControlLabel
-                value="female"
-                control={<Radio />}
-                label="Female"
-              />
-            </RadioGroup>
-            <FormHelperText>{genderErrorMessage}</FormHelperText>
-          </FormControl>
-
-          <FormControlLabel
-            control={<Checkbox color="primary" />}
-            name="admin"
-            label="Admin"
           />
         </Box>
 
-        <FormControlLabel
-          control={<Checkbox color="primary" />}
-          name="allowExtraEmails"
-          label="I want to receive updates via email."
+        {/* Username Field */}
+        <FormField
+          type="text"
+          name="username"
+          label="Username"
+          placeholder="jonsnow123"
+          autoComplete="username"
+          required
+          value={formData.username}
+          onChange={handleFieldChange('username')}
+          error={getFieldError('username').error}
+          errorMessage={getFieldError('username').message}
         />
-        <Button type="submit" fullWidth variant="contained">
-          Sign up
-        </Button>
-      </Box>
-      <Divider>
-        <Typography sx={{ color: "text.secondary" }}>or</Typography>
-      </Divider>
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={() => alert("Sign up with Google")}
-          startIcon={<GoogleIcon />}
+
+        {/* Email Field */}
+        <FormField
+          type="email"
+          name="email"
+          label="Email"
+          placeholder="your@email.com"
+          autoComplete="email"
+          required
+          value={formData.email}
+          onChange={handleFieldChange('email')}
+          error={getFieldError('email').error}
+          errorMessage={getFieldError('email').message}
+        />
+
+        {/* Password Field */}
+        <FormField
+          type="password"
+          name="password"
+          label="Password"
+          placeholder="••••••"
+          autoComplete="new-password"
+          required
+          value={formData.password}
+          onChange={handleFieldChange('password')}
+          error={getFieldError('password').error}
+          errorMessage={getFieldError('password').message}
+        />
+
+        {/* Gender Field */}
+        <FormField
+          type="radio"
+          name="gender"
+          label="Gender"
+          radioOptions={genderOptions}
+          required
+          value={formData.gender}
+          onChange={handleFieldChange('gender')}
+          error={getFieldError('gender').error}
+          errorMessage={getFieldError('gender').message}
+        />
+
+        {/* Role Selection */}
+        <FormControlLabel
+          control={
+            <Checkbox 
+              name="role" 
+              value="admin"
+              color="primary"
+              checked={formData.role === 'admin'}
+              onChange={handleFieldChange('role')}
+            />
+          }
+          label="Register as Admin"
+        />
+
+        {/* Marketing Emails */}
+        <FormControlLabel
+          control={
+            <Checkbox 
+              name="allowExtraEmails" 
+              color="primary"
+              checked={formData.allowExtraEmails}
+              onChange={handleFieldChange('allowExtraEmails')}
+            />
+          }
+          label="I want to receive marketing promotions and updates via email."
+        />
+
+        {/* Submit Button */}
+        <Button 
+          type="submit" 
+          fullWidth 
+          variant="contained"
+          disabled={isSubmitting}
         >
-          Sign up with Google
+          {isSubmitting ? 'Creating account...' : 'Sign up'}
         </Button>
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={() => alert("Sign up with Facebook")}
-          startIcon={<FacebookIcon />}
-        >
-          Sign up with Facebook
-        </Button>
+
+        {/* Sign In Link */}
         <Typography sx={{ textAlign: "center" }}>
           Already have an account?{" "}
           <Link
@@ -273,13 +248,43 @@ export default function SignUp(props: {
           </Link>
         </Typography>
       </Box>
-      <AppDialog
-        open={formDialogOpen}
-        onClose={() => setFormDialogOpen(false)}
-        title="Error"
-        message={dialogMessage}
-        type="error"
-      />
+
+      {/* Social Registration Divider */}
+      <Divider>or</Divider>
+
+      {/* Social Registration Buttons */}
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <Button
+          variant="outlined"
+          startIcon={<GoogleIcon />}
+          fullWidth
+          sx={{
+            borderColor: "grey.300",
+            color: "grey.700",
+            "&:hover": {
+              borderColor: "grey.400",
+              backgroundColor: "grey.50",
+            },
+          }}
+        >
+          Continue with Google
+        </Button>
+        <Button
+          variant="outlined"
+          startIcon={<FacebookIcon />}
+          fullWidth
+          sx={{
+            borderColor: "grey.300",
+            color: "grey.700",
+            "&:hover": {
+              borderColor: "grey.400",
+              backgroundColor: "grey.50",
+            },
+          }}
+        >
+          Continue with Facebook
+        </Button>
+      </Box>
     </AuthCard>
   );
 }

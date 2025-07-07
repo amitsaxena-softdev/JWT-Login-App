@@ -63,10 +63,17 @@ const login = async (req, res) => {
       message: "Login successful!",
       token,
       user: {
+        _id: user._id,
         username: user.username,
         role: user.role,
         firstName: user.firstName,
-        lastName: user.lastName
+        lastName: user.lastName,
+        email: user.email,
+        gender: user.gender,
+        phone: user.phone,
+        aboutUser: user.aboutUser,
+        createdAt: user.createdAt,
+        settings: user.settings
       }
     });
 
@@ -298,13 +305,31 @@ const checkToken = async (req, res) => {
     // Verify token signature and expiration
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
     
+    // Fetch complete user data from database
+    const user = await User.findById(decodedToken.userId).select('-password');
+    
+    if (!user) {
+      return res.status(401).json({ 
+        success: false,
+        message: "User not found" 
+      });
+    }
+    
     res.status(200).json({ 
       success: true,
       message: "Token is valid",
       user: {
-        username: decodedToken.username,
-        userId: decodedToken.userId,
-        role: decodedToken.role
+        _id: user._id,
+        username: user.username,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        gender: user.gender,
+        phone: user.phone,
+        aboutUser: user.aboutUser,
+        createdAt: user.createdAt,
+        settings: user.settings
       }
     });
 

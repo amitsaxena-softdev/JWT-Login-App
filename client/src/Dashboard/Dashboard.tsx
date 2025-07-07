@@ -1,336 +1,396 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
+  Container,
   Typography,
-  Button,
   Tabs,
   Tab,
   Paper,
+  Card,
+  CardContent,
+  CardHeader,
+  Avatar,
+  Chip,
+  Button,
+  Stack,
   Divider,
-  Snackbar,
   Alert,
-  Grid,
   CircularProgress,
+  IconButton,
+  Tooltip,
+  Breadcrumbs,
+  Link,
+  AppBar,
+  Toolbar,
 } from "@mui/material";
+import {
+  Dashboard as DashboardIcon,
+  Person,
+  AdminPanelSettings,
+  Logout,
+  Home,
+  Settings,
+  Notifications,
+  Refresh,
+  TrendingUp,
+  Group,
+  Security,
+  VerifiedUser,
+  AccessTime,
+  CalendarToday,
+  Email,
+  Phone,
+} from "@mui/icons-material";
+import { useAuth } from "../utils/AuthContext";
+import { useSnackbar } from "../utils/SnackbarContext";
 import UserInfo from "./Components/UserInfo";
 import AdminPanel from "./Components/AdminPanel";
-import DeleteIcon from "@mui/icons-material/Delete";
-
+import { userApi, adminApi } from "../utils/api";
 import { UserData } from "../types/User";
-import TransparentAppBar from "../shared-theme/TranparentAppBar";
-import { useSnackbar } from "../utils/SnackbarContext";
-import AppDialog from "../shared-theme/AppDialog";
 
 /**
  * Dashboard Component
  * 
- * Main dashboard interface that displays user information and admin panel
- * based on user role. Handles user data fetching, account management,
- * and admin-specific functionality.
+ * Main dashboard interface with tabbed navigation for user profile
+ * and admin panel (if user is admin). Features enhanced Material UI
+ * components and comprehensive user information display.
  * 
- * Features:
- * - User profile display
- * - Admin panel for user management (admin users only)
- * - Account deletion functionality
- * - Tab-based navigation
- * - Loading states and error handling
+ * @returns JSX element
  */
-const Dashboard = () => {
-  // State management
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [usersList, setUsersList] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [tabIndex, setTabIndex] = useState(0);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-
-  // Hooks
+const Dashboard: React.FC = () => {
+  const { user, logout } = useAuth();
   const showSnackbar = useSnackbar();
+  
+  const [activeTab, setActiveTab] = useState(0);
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [userLoading, setUserLoading] = useState(true);
+  const [userData, setUserData] = useState<UserData | null>(null);
 
-  // Get authentication token from storage
-  const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-
-  /**
-   * Fetches user profile data and admin users list if applicable
-   * 
-   * This function is called on component mount to load the user's
-   * profile information and, if the user is an admin, fetch the
-   * complete list of users for the admin panel.
-   */
-  const fetchUserData = async () => {
-    try {
-      // Fetch user profile
-      const response = await fetch("http://localhost:3001/user/profile", {
-        method: "GET",
-        headers: { 
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch profile: ${response.status}`);
-      }
-
-      const result = await response.json();
-      const user = {
-        ...result.data,
-        isAdmin: result.data.role === "admin",
-      };
-
-      setUserData(user);
-
-      // If user is admin, fetch all users for admin panel
-      if (user.isAdmin) {
-        await fetchAdminUsers();
-      }
-
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      showSnackbar({
-        message: error.message || "Failed to fetch user data. Please try again.",
-        severity: "error",
-      });
-      setLoading(false);
-    }
-  };
-
-  /**
-   * Fetches all users for admin panel functionality
-   * 
-   * Only called when the current user has admin privileges.
-   * This data is used to display the user management interface.
-   */
-  const fetchAdminUsers = async () => {
-    try {
-      const response = await fetch("http://localhost:3001/admin/getAllUsers", {
-        method: "GET",
-        headers: { 
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch users: ${response.status}`);
-      }
-
-      const result = await response.json();
-      setUsersList(result.users || []);
-    } catch (error) {
-      console.error("Error fetching admin users:", error);
-      showSnackbar({
-        message: "Failed to fetch users list for admin panel.",
-        severity: "error",
-      });
-    }
-  };
-
-  /**
-   * Handles user account deletion
-   * 
-   * Sends a delete request to the server and handles the response.
-   * On successful deletion, logs out the user and redirects to login.
-   */
-  const handleDeleteAccount = async () => {
-    try {
-      const response = await fetch("http://localhost:3001/user/deleteUser", {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
+  // Fetch user profile data
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setUserLoading(true);
+        const response = await userApi.getProfile();
+        if (response.success && response.data) {
+          setUserData(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
         showSnackbar({
-          message: "Account deleted successfully",
-          severity: "success",
+          message: "Failed to load user profile",
+          severity: "error",
         });
-        
-        // Logout after successful deletion
-        setTimeout(() => {
-          handleLogout();
-        }, 1000);
-      } else {
-        throw new Error(result.message || "Unknown error occurred");
+      } finally {
+        setUserLoading(false);
       }
-    } catch (error) {
-      console.error("Error deleting account:", error);
+    };
+
+    if (user) {
+      fetchUserProfile();
+    }
+  }, [user, showSnackbar]);
+
+  // Fetch all users for admin panel
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (user?.role === "admin") {
+        try {
+          setLoading(true);
+          const response = await adminApi.getAllUsers();
+          if (response.success && response.data) {
+            setUsers(response.data);
+          }
+        } catch (error) {
+          console.error("Error fetching users:", error);
+          showSnackbar({
+            message: "Failed to load users",
+            severity: "error",
+          });
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, [user, showSnackbar]);
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
       showSnackbar({
-        message: error.message || "Failed to delete account. Please try again.",
+        message: "Logged out successfully",
+        severity: "success",
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+      showSnackbar({
+        message: "Logout failed",
         severity: "error",
       });
     }
   };
 
-  /**
-   * Handles user deletion by admin
-   * 
-   * Allows admin users to delete other user accounts.
-   * Updates the local users list on successful deletion.
-   * 
-   * @param {string} userId - The ID of the user to delete
-   */
-  const handleDeleteUserByAdmin = async (userId: string) => {
+  const handleDeleteUser = async (userId: string) => {
     try {
-      const response = await fetch("http://localhost:3001/admin/deleteUserByAdmin", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({ userId }),
+      await adminApi.deleteUser(userId);
+      
+      // Remove user from local state
+      setUsers(users.filter((u) => u._id !== userId));
+      
+      showSnackbar({
+        message: "User deleted successfully",
+        severity: "success",
       });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        // Update local state to remove deleted user
-        setUsersList((prev) => prev.filter((user) => user._id !== userId));
-        
-        showSnackbar({
-          message: result.message || "User deleted successfully",
-          severity: "success",
-        });
-      } else {
-        throw new Error(result.message || "Error deleting user");
-      }
     } catch (error) {
       console.error("Error deleting user:", error);
       showSnackbar({
-        message: error.message || "Failed to delete user. Please try again.",
+        message: "Failed to delete user",
         severity: "error",
       });
     }
   };
 
-  /**
-   * Handles user logout
-   * 
-   * Sends logout request to server to invalidate token,
-   * clears local storage, and reloads the page to reset state.
-   */
-  const handleLogout = async () => {
-    try {
-      // Call logout endpoint to invalidate token on server
-      await fetch("http://localhost:3001/auth/logout", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-    } catch (error) {
-      console.error("Error during logout:", error);
-    } finally {
-      // Clear local storage regardless of server response
-      localStorage.removeItem("token");
-      sessionStorage.removeItem("token");
-      window.location.reload();
-    }
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
-  /**
-   * Handles tab change in the dashboard interface
-   * 
-   * @param {React.SyntheticEvent} event - The tab change event
-   * @param {number} newValue - The index of the newly selected tab
-   */
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabIndex(newValue);
+  const getRoleChip = (role: string) => {
+    return role === 'admin' ? (
+      <Chip
+        icon={<AdminPanelSettings />}
+        label="Administrator"
+        color="error"
+        variant="filled"
+        size="small"
+      />
+    ) : (
+      <Chip
+        icon={<Person />}
+        label="User"
+        color="primary"
+        variant="outlined"
+        size="small"
+      />
+    );
   };
 
-  // Load user data on component mount
-  useEffect(() => {
-    fetchUserData();
-  }, []);
-
-  // Loading state
-  if (loading) {
+  if (!user) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-        <CircularProgress />
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+        <CircularProgress size={60} />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ p: 4 }}>
-      {/* Application header with logout functionality */}
-      <TransparentAppBar onLogout={handleLogout} />
-      
-      {/* Dashboard title */}
-      <Typography variant="h4" gutterBottom>
-        Welcome to your Dashboard
-      </Typography>
+    <Box sx={{ minHeight: "100vh", bgcolor: "grey.50" }}>
+      {/* Top App Bar */}
+      <AppBar position="static" elevation={0} sx={{ bgcolor: "white", color: "text.primary" }}>
+        <Toolbar>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexGrow: 1 }}>
+            <DashboardIcon color="primary" />
+            <Typography variant="h6" component="div">
+              Dashboard
+            </Typography>
+          </Box>
+          
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Tooltip title="Refresh">
+              <IconButton>
+                <Refresh />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Notifications">
+              <IconButton>
+                <Notifications />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Settings">
+              <IconButton>
+                <Settings />
+              </IconButton>
+            </Tooltip>
+            <Divider orientation="vertical" flexItem />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Avatar
+                sx={{
+                  width: 32,
+                  height: 32,
+                  bgcolor: user.role === 'admin' ? 'error.main' : 'primary.main',
+                }}
+              >
+                {getInitials(user.firstName, user.lastName)}
+              </Avatar>
+              <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                <Typography variant="body2" fontWeight="medium">
+                  {user.firstName} {user.lastName}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  @{user.username}
+                </Typography>
+              </Box>
+            </Box>
+            <Tooltip title="Logout">
+              <IconButton onClick={handleLogout} color="error">
+                <Logout />
+              </IconButton>
+            </Tooltip>
+          </Stack>
+        </Toolbar>
+      </AppBar>
 
-      {/* Tab navigation */}
-      <Paper elevation={3} sx={{ mb: 2 }}>
-        <Tabs value={tabIndex} onChange={handleTabChange} centered>
-          <Tab label="Profile" />
-          {userData?.isAdmin && <Tab label="Admin Panel" />}
-        </Tabs>
-      </Paper>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        {/* Breadcrumbs */}
+        <Breadcrumbs sx={{ mb: 3 }}>
+          <Link href="#" color="inherit" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Home fontSize="small" />
+            Home
+          </Link>
+          <Typography color="text.primary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <DashboardIcon fontSize="small" />
+            Dashboard
+          </Typography>
+        </Breadcrumbs>
 
-      {/* Tab content */}
-      <Grid container spacing={2}>
-        {/* Profile tab content */}
-        {tabIndex === 0 && userData && (
-          <Grid size={12}>
-            <Paper sx={{ p: 2 }}>
-              <UserInfo user={userData} loading={loading} />
-            </Paper>
-          </Grid>
-        )}
-        
-        {/* Admin panel tab content */}
-        {tabIndex === 1 && userData?.isAdmin && (
-          <Grid size={12}>
-            <Paper sx={{ p: 2 }}>
-              <AdminPanel
-                users={usersList}
-                onDeleteUser={handleDeleteUserByAdmin}
+        {/* Welcome Banner */}
+        <Card sx={{ mb: 4, bgcolor: 'primary.main', color: 'white' }}>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+              <Avatar
+                sx={{
+                  width: 80,
+                  height: 80,
+                  bgcolor: 'white',
+                  color: 'primary.main',
+                  fontSize: '2rem',
+                }}
+              >
+                {getInitials(user.firstName, user.lastName)}
+              </Avatar>
+              <Box sx={{ flexGrow: 1 }}>
+                <Typography variant="h4" gutterBottom>
+                  Welcome back, {user.firstName}! 👋
+                </Typography>
+                <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                  Here's what's happening with your account today.
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
+                  {getRoleChip(user.role)}
+                  <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                    Member since {new Date(user.createdAt).toLocaleDateString()}
+                  </Typography>
+                </Box>
+              </Box>
+              <Stack direction="row" spacing={1}>
+                <Button variant="contained" sx={{ bgcolor: 'white', color: 'primary.main' }}>
+                  View Profile
+                </Button>
+                <Button variant="outlined" sx={{ color: 'white', borderColor: 'white' }}>
+                  Settings
+                </Button>
+              </Stack>
+            </Box>
+          </CardContent>
+        </Card>
+
+        {/* Quick Stats */}
+        <Box sx={{ display: 'flex', gap: 3, mb: 4, flexWrap: 'wrap' }}>
+          <Card sx={{ textAlign: 'center', bgcolor: 'success.light', color: 'white', flex: 1, minWidth: 200 }}>
+            <CardContent>
+              <TrendingUp sx={{ fontSize: 40, mb: 1 }} />
+              <Typography variant="h4">
+                {Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24))}
+              </Typography>
+              <Typography variant="body2">Days Active</Typography>
+            </CardContent>
+          </Card>
+          <Card sx={{ textAlign: 'center', bgcolor: 'info.light', color: 'white', flex: 1, minWidth: 200 }}>
+            <CardContent>
+              <Security sx={{ fontSize: 40, mb: 1 }} />
+              <Typography variant="h4">
+                {user.role === 'admin' ? 'Admin' : 'User'}
+              </Typography>
+              <Typography variant="body2">Account Level</Typography>
+            </CardContent>
+          </Card>
+          <Card sx={{ textAlign: 'center', bgcolor: 'warning.light', color: 'white', flex: 1, minWidth: 200 }}>
+            <CardContent>
+              <Email sx={{ fontSize: 40, mb: 1 }} />
+              <Typography variant="h4">
+                {user.email ? 'Verified' : 'Pending'}
+              </Typography>
+              <Typography variant="body2">Email Status</Typography>
+            </CardContent>
+          </Card>
+          <Card sx={{ textAlign: 'center', bgcolor: 'secondary.light', color: 'white', flex: 1, minWidth: 200 }}>
+            <CardContent>
+              <VerifiedUser sx={{ fontSize: 40, mb: 1 }} />
+              <Typography variant="h4">
+                Active
+              </Typography>
+              <Typography variant="body2">Account Status</Typography>
+            </CardContent>
+          </Card>
+        </Box>
+
+        {/* Main Content Tabs */}
+        <Paper sx={{ boxShadow: 2 }}>
+          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+            <Tabs
+              value={activeTab}
+              onChange={handleTabChange}
+              aria-label="dashboard tabs"
+              sx={{
+                "& .MuiTab-root": {
+                  minHeight: 64,
+                  fontSize: "1rem",
+                },
+              }}
+            >
+              <Tab
+                icon={<Person />}
+                label="My Profile"
+                iconPosition="start"
+                sx={{ flexDirection: "row", gap: 1 }}
               />
-            </Paper>
-          </Grid>
-        )}
-      </Grid>
+              {user.role === "admin" && (
+                <Tab
+                  icon={<AdminPanelSettings />}
+                  label="Admin Panel"
+                  iconPosition="start"
+                  sx={{ flexDirection: "row", gap: 1 }}
+                />
+              )}
+            </Tabs>
+          </Box>
 
-      <Divider sx={{ my: 4 }} />
+          <Box sx={{ p: 3 }}>
+            {activeTab === 0 && (
+              <UserInfo user={userData} loading={userLoading} />
+            )}
+            
+            {activeTab === 1 && user.role === "admin" && (
+              <AdminPanel users={users} onDeleteUser={handleDeleteUser} />
+            )}
+          </Box>
+        </Paper>
 
-      {/* Account deletion section */}
-      <Box textAlign="center">
-        <Button
-          variant="outlined"
-          startIcon={<DeleteIcon />}
-          color="error"
-          onClick={() => setOpenDeleteDialog(true)}
-          sx={{
-            borderColor: "error.main",
-            "&:hover": {
-              borderColor: "error.dark",
-              backgroundColor: "error.light",
-              color: "error.contrastText",
-            },
-          }}
-        >
-          Delete Account
-        </Button>
-      </Box>
-
-      {/* Delete account confirmation dialog */}
-      <AppDialog
-        open={openDeleteDialog}
-        onClose={() => setOpenDeleteDialog(false)}
-        title="Delete Account"
-        message="Are you sure you want to delete your account? This action cannot be undone."
-        onConfirm={handleDeleteAccount}
-        confirmText="Delete"
-        type="confirm"
-      />
+        {/* Footer */}
+        <Box sx={{ mt: 4, textAlign: "center" }}>
+          <Typography variant="body2" color="text.secondary">
+            © 2024 JWT Login App. All rights reserved.
+          </Typography>
+        </Box>
+      </Container>
     </Box>
   );
 };

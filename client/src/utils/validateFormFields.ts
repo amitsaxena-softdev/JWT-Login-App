@@ -11,13 +11,13 @@ export const validateFields = (fields: {
 
   // Firstname
   if ("firstname" in fields) {
-    if (!fields.firstname || fields.firstname.length < 1) {
+    if (!fields.firstname || fields.firstname.trim().length < 1) {
       errors.firstname = {
         error: true,
         message: "Firstname is required.",
       };
       isValid = false;
-    } else if (!/^[a-zA-Z]+$/.test(fields.firstname)) {
+    } else if (!/^[a-zA-Z]+$/.test(fields.firstname.trim())) {
       errors.firstname = {
         error: true,
         message: "Firstname must contain only letters.",
@@ -30,13 +30,13 @@ export const validateFields = (fields: {
 
   // Lastname
   if ("lastname" in fields) {
-    if (!fields.lastname || fields.lastname.length < 1) {
+    if (!fields.lastname || fields.lastname.trim().length < 1) {
       errors.lastname = {
         error: true,
         message: "Lastname is required.",
       };
       isValid = false;
-    } else if (!/^[a-zA-Z]+$/.test(fields.lastname)) {
+    } else if (!/^[a-zA-Z]+$/.test(fields.lastname.trim())) {
       errors.lastname = {
         error: true,
         message: "Lastname must contain only letters.",
@@ -49,7 +49,13 @@ export const validateFields = (fields: {
 
   // Username
   if ("username" in fields) {
-    if (!/^[a-zA-Z0-9_]{3,20}$/.test(fields.username)) {
+    if (!fields.username || fields.username.trim().length < 1) {
+      errors.username = {
+        error: true,
+        message: "Username is required.",
+      };
+      isValid = false;
+    } else if (!/^[a-zA-Z0-9_]{3,20}$/.test(fields.username.trim())) {
       errors.username = {
         error: true,
         message: "Username: 3–20 chars, letters, numbers, _ only.",
@@ -62,7 +68,7 @@ export const validateFields = (fields: {
 
   // Password
   if ("password" in fields) {
-    if (!fields.password) {
+    if (!fields.password || fields.password.length < 1) {
       errors.password = {
         error: true,
         message: "Password is required.",
@@ -81,7 +87,13 @@ export const validateFields = (fields: {
 
   // Email
   if ("email" in fields) {
-    if (!/^\S+@\S+\.\S+$/.test(fields.email)) {
+    if (!fields.email || fields.email.trim().length < 1) {
+      errors.email = {
+        error: true,
+        message: "Email is required.",
+      };
+      isValid = false;
+    } else if (!/^\S+@\S+\.\S+$/.test(fields.email.trim())) {
       errors.email = {
         error: true,
         message: "Invalid email address.",
@@ -94,21 +106,19 @@ export const validateFields = (fields: {
 
   // Gender
   if ("gender" in fields) {
-    if (!fields.gender) {
+    if (!fields.gender || fields.gender.trim().length < 1) {
       errors.gender = {
         error: true,
         message: "Select a gender.",
       };
       isValid = false;
-    } 
-    else if (!(fields.gender == "male" || fields.gender == "female"))  {
+    } else if (!(fields.gender === "male" || fields.gender === "female")) {
       errors.gender = {
         error: true,
         message: "Select a valid gender.",
-        };
-        isValid = false;
-    }
-    else {
+      };
+      isValid = false;
+    } else {
       errors.gender = { error: false, message: "" };
     }
   }

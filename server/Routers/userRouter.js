@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const { deleteUser, getUserProfile } = require('../Controllers/userController');
-const { get } = require('mongoose');
 
 router.get('/profile', getUserProfile);
 router.delete('/deleteUser', deleteUser);
