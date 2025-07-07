@@ -6,36 +6,24 @@ A modern, secure authentication system built with React, Node.js, and MongoDB. F
 
 ## 🚀 Features
 
-### Authentication & Security
-- **JWT Token Authentication** with secure token validation
-- **Password Hashing** using bcrypt with 12 salt rounds
-- **Token Blacklisting** for secure logout functionality
-- **Client & Server-side Token Validation**
-- **Session & Local Storage** token management
-- **CORS Protection** with configurable origins
-
-### User Management
-- **User Registration** with comprehensive validation
-- **Role-based Access Control** (User/Admin)
-- **Profile Management** with user information display
-- **Account Deletion** with confirmation dialogs
-- **Admin Panel** for user management (admin users only)
-
-### Frontend Features
-- **Responsive Design** with Material-UI components
-- **Dark/Light Theme** support
-- **Tab-based Navigation** for different sections
-- **Loading States** and error handling
-- **Snackbar Notifications** for user feedback
-- **Form Validation** with real-time feedback
-
-### Backend Features
-- **RESTful API** with proper HTTP status codes
-- **Input Validation** and sanitization
-- **Error Handling** with detailed error messages
-- **Database Connection** monitoring
-- **Health Check Endpoint** for monitoring
-- **Security Headers** implementation
+| Category | Feature | Description |
+|----------|---------|-------------|
+| **Authentication** | JWT Token Auth | Secure token-based authentication with 1-hour expiration |
+| | Password Hashing | bcrypt with 12 salt rounds for secure password storage |
+| | Token Blacklisting | Secure logout with token invalidation |
+| | Role-based Access | User/Admin role management and permissions |
+| **User Management** | User Registration | Comprehensive signup with validation |
+| | Profile Management | Complete user profile display and editing |
+| | Account Deletion | Secure account removal with confirmation |
+| | Admin Panel | User management interface for administrators |
+| **Frontend** | Responsive Design | Mobile-first Material-UI components |
+| | Dark/Light Theme | Theme switching with custom color palette |
+| | Form Validation | Real-time input validation with error feedback |
+| | Loading States | Async operation indicators and error handling |
+| **Backend** | RESTful API | Standardized API with proper HTTP status codes |
+| | Input Validation | Server-side validation and sanitization |
+| | Error Handling | Comprehensive error management and logging |
+| | Security Headers | XSS and CSRF protection implementation |
 
 ## 📁 Project Structure
 
@@ -61,20 +49,15 @@ JWT-Login-App/
 
 ## 🛠️ Technology Stack
 
-| Category | Technology | Version | Purpose |
-|----------|------------|---------|---------|
-| **Frontend** | React | 18.x | UI framework |
-| | Material-UI (MUI) | 5.x | Component library |
-| | React Router | 6.x | Client-side routing |
-| | Vite | 6.x | Build tool & dev server |
-| | TypeScript | 5.x | Type safety |
-| **Backend** | Node.js | 18+ | Runtime environment |
-| | Express.js | 4.18.2 | Web framework |
-| | MongoDB | 6+ | Database |
-| | Mongoose | 7.x | ODM for MongoDB |
-| | JWT | 9.x | Token-based authentication |
-| | bcrypt | 5.x | Password hashing |
-| | CORS | 2.8.x | Cross-origin resource sharing |
+| Frontend | Backend |
+|----------|---------|
+| React | Node.js |
+| Material-UI (MUI) | Express.js |
+| React Router | MongoDB |
+| Vite | Mongoose |
+| TypeScript | JWT |
+| | bcrypt |
+| | CORS |
 
 ## 🚀 Getting Started
 
