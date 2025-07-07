@@ -156,55 +156,70 @@ JWT-Login-App/
 
 ### Authentication Endpoints
 
-#### POST `/auth/login`
-User login endpoint.
-```json
-{
-  "username": "user@example.com",
-  "password": "password123"
-}
-```
-
-#### POST `/auth/signup`
-User registration endpoint.
-```json
-{
-  "username": "newuser",
-  "password": "password123",
-  "role": "user",
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john@example.com",
-  "gender": "male"
-}
-```
-
-#### POST `/auth/logout`
-User logout endpoint (requires Authorization header).
-
-#### GET `/auth/checkToken`
-Token validation endpoint (requires Authorization header).
+| Method | Endpoint | Description | Request Body | Response | Auth Required |
+|--------|----------|-------------|--------------|----------|---------------|
+| `POST` | `/auth/login` | User login | `{ "username": "user@example.com", "password": "password123" }` | `{ "success": true, "message": "Login successful!", "token": "jwt_token", "user": {...} }` | ❌ |
+| `POST` | `/auth/signup` | User registration | `{ "username": "newuser", "password": "password123", "role": "user", "firstName": "John", "lastName": "Doe", "email": "john@example.com", "gender": "male" }` | `{ "success": true, "message": "User created successfully" }` | ❌ |
+| `POST` | `/auth/logout` | User logout | - | `{ "success": true, "message": "Logout successful" }` | ✅ |
+| `GET` | `/auth/checkToken` | Validate token | - | `{ "success": true, "message": "Token is valid", "user": {...} }` | ✅ |
 
 ### User Endpoints
 
-#### GET `/user/profile`
-Get user profile (requires Authorization header).
-
-#### DELETE `/user/deleteUser`
-Delete user account (requires Authorization header).
+| Method | Endpoint | Description | Request Body | Response | Auth Required |
+|--------|----------|-------------|--------------|----------|---------------|
+| `GET` | `/user/profile` | Get user profile | - | `{ "success": true, "data": { "user": {...} } }` | ✅ |
+| `DELETE` | `/user/deleteUser` | Delete user account | - | `{ "success": true, "message": "User deleted successfully" }` | ✅ |
 
 ### Admin Endpoints
 
-#### GET `/admin/getAllUsers`
-Get all users (admin only, requires Authorization header).
+| Method | Endpoint | Description | Request Body | Response | Auth Required |
+|--------|----------|-------------|--------------|----------|---------------|
+| `GET` | `/admin/getAllUsers` | Get all users | - | `{ "success": true, "data": { "users": [...] } }` | ✅ (Admin) |
+| `DELETE` | `/admin/deleteUserByAdmin` | Delete user by admin | `{ "userId": "user-id-to-delete" }` | `{ "success": true, "message": "User deleted successfully" }` | ✅ (Admin) |
 
-#### DELETE `/admin/deleteUserByAdmin`
-Delete user by admin (admin only, requires Authorization header).
+### Response Data Structures
+
+#### User Object
 ```json
 {
-  "userId": "user-id-to-delete"
+  "_id": "string",
+  "username": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "email": "string",
+  "role": "user" | "admin",
+  "gender": "male" | "female",
+  "phone": "string",
+  "aboutUser": "string",
+  "createdAt": "string",
+  "settings": {
+    "newsletter": "boolean"
+  }
 }
 ```
+
+#### Standard Response Format
+```json
+{
+  "success": "boolean",
+  "message": "string",
+  "data": "object (optional)",
+  "error": "string (optional)"
+}
+```
+
+### HTTP Status Codes
+
+| Code | Description |
+|------|-------------|
+| `200` | Success |
+| `201` | Created |
+| `400` | Bad Request - Invalid input |
+| `401` | Unauthorized - Invalid/missing token |
+| `403` | Forbidden - Insufficient permissions |
+| `404` | Not Found |
+| `409` | Conflict - Resource already exists |
+| `500` | Internal Server Error |
 
 ## 🔒 Security Features
 
