@@ -2,7 +2,7 @@
 
 A modern, secure authentication system built with React, Node.js, and MongoDB. Features JWT-based authentication, role-based access control, and a responsive Material-UI interface.
 
-![JWT Login App Screenshot](client/public/JWT Screenshot.png)
+![JWT Login App Screenshot](https://github.com/amitsaxena-softdev/JWT-Login-App/blob/cc1ab4a6f22c007d8e033022d9d67806818ca590/client/public/JWT%20Screenshot.png)
 
 ## 🚀 Features
 
